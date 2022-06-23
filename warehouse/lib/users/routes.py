@@ -4,13 +4,15 @@ Copyright (c) 2022 Anavereum Inc. All Rights Reserved.
 import random
 
 from fastapi import Header
+
+from warehouse.db import get_date
 from warehouse.lib.payloads import CreateUser, EditUser
 from warehouse.lib.users.basic import User
-from warehouse.db import get_date
+
 
 async def create_user(payload: CreateUser):
     discriminator: str | None = None
-    
+
     for _ in range(600):
         try:
             discriminator: str | None = '%04d' % random.randint(0, 9999)
@@ -19,7 +21,10 @@ async def create_user(payload: CreateUser):
             pass
 
     if not discriminator:
-        return {'err_code': 1, 'message': 'Username has been used too much, please try another one.'}
+        return {
+            'err_code': 1,
+            'message': 'Username has been used too much, please try another one.',
+        }
 
     user = User(
         email=payload.email,
@@ -31,7 +36,7 @@ async def create_user(payload: CreateUser):
         banner_url='',
         flags=1,
         bio='',
-        locale='en-US'
+        locale='en-US',
     )
 
     await user.commit()
@@ -42,11 +47,7 @@ async def create_user(payload: CreateUser):
     return transmission
 
 
-async def edit_user(
-    payload: EditUser,
-    authorization: str = Header(default=None)
-):
+async def edit_user(payload: EditUser, authorization: str = Header(default=None)):
     user = User.from_authorization(token=authorization)
 
     # TODO: Finish
-

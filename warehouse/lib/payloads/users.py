@@ -19,10 +19,7 @@ class CreateUser(BaseModel):
 
 
 class EditUser(BaseModel):
-    discriminator: str | None = Field(
-        max_length=4,
-        regex=NUMBER_REGEX
-    )
+    discriminator: str | None = Field(max_length=4, regex=NUMBER_REGEX)
     avatar_url: str | None = Field(max_length=50, regex=URL_REGEX)
     banner_url: str | None = Field(max_length=50, regex=URL_REGEX)
 

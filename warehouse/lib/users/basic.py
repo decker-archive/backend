@@ -41,10 +41,7 @@ class User:
     @classmethod
     def user_exists(cls, username: str, discriminator: str) -> None:
         try:
-            UserDB.objects(
-                username=username,
-                discriminator=discriminator
-            ).get()
+            UserDB.objects(username=username, discriminator=discriminator).get()
         except:
             raise UserAlreadyExists()
 
@@ -64,14 +61,11 @@ class User:
             flags=user.flags,
             bio=user.bio,
             verified=user.verified,
-            locale=user.locale
+            locale=user.locale,
         )
 
     def create_token(self):
-        return create_token(
-            self._id,
-            self._password
-        )
+        return create_token(self._id, self._password)
 
     async def commit(self):
         """
