@@ -12,10 +12,10 @@ from warehouse.lib.errors import AuthenticationError
 
 def create_token(user_id: int, user_password: str) -> str:
     signer = itsdangerous.TimestampSigner(user_password)
-    user_id = str(user_id)
-    user_id = base64.b64encode(user_id.encode())
+    user_id = str(user_id) # type: ignore
+    user_id = base64.b64encode(user_id.encode()) # type: ignore
 
-    return signer.sign(user_id).decode()
+    return signer.sign(user_id).decode() # type: ignore
 
 
 def verify_token(token: str):

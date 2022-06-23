@@ -31,7 +31,7 @@ async def create_user(payload: CreateUser):
         password=payload.password,
         username=payload.username,
         discriminator=discriminator,
-        joined_at=get_date(),
+        joined_at=get_date(), # type: ignore
         avatar_url='',
         banner_url='',
         flags=1,

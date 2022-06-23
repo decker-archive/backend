@@ -96,7 +96,7 @@ class User:
         return self
 
     def create_token(self):
-        return create_token(self._id, self._password)
+        return create_token(self._id, self._password) # type: ignore
 
     async def commit(self):
         """
@@ -105,7 +105,7 @@ class User:
         if self._exists:
             raise CommitError('This user already exists.')
 
-        self._password = await hashpass(self._password)
+        self._password = await hashpass(self._password) # type: ignore
 
         udb: UserDB = UserDB.create(
             id=snowflake_factory.manufacture(),
@@ -158,7 +158,7 @@ class User:
         self._db = self._db.update(**d)
 
         for k, v in d.keys():
-            setattr('_' + k, v)
+            setattr(self, '_' + k, v)
 
     def for_transmission(self, remove_email: bool = True):
         dict_return = {}
