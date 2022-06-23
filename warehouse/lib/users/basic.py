@@ -3,7 +3,7 @@ Copyright (c) 2022 Anavereum Inc. All Rights Reserved.
 """
 from warehouse.db import User as UserDB
 from warehouse.db import hashpass, snowflake_factory
-from warehouse.lib.errors import CommitError, UserAlreadyExists
+from warehouse.lib.errors import CommitError, UserAlreadyExists, UserDoesNotExist
 from warehouse.lib.users.authorization import create_token, verify_token
 
 
@@ -39,9 +39,39 @@ class User:
         self._locale = locale
 
     @classmethod
+    def from_id(cls, id: int):
+        try:
+            udb: UserDB = UserDB.objects(
+                UserDB.id==id
+            ).get()
+        except:
+            raise UserDoesNotExist()
+
+        self = cls(
+            id=udb.id,
+            email=udb.email,
+            password=udb.password,
+            username=udb.username,
+            discriminator=udb.discriminator,
+            joined_at=udb.joined_at,
+            avatar_url=udb.avatar_url,
+            banner_url=udb.banner_url,
+            flags=udb.flags,
+            bio=udb.bio,
+            verified=udb.verified,
+            locale=udb.locale
+        )
+        self._db = udb
+
+        return self
+
+    @classmethod
     def user_exists(cls, username: str, discriminator: str) -> None:
         try:
-            UserDB.objects(username=username, discriminator=discriminator).get()
+            UserDB.objects(
+                UserDB.username==username,
+                UserDB.discriminator==discriminator
+            ).get()
         except:
             raise UserAlreadyExists()
 
@@ -49,7 +79,7 @@ class User:
     def from_authorization(cls, token: str) -> "User":
         user = verify_token(token=token)
 
-        return cls(
+        self = cls(
             id=user.id,
             email=user.email,
             password=user.password,
@@ -63,6 +93,10 @@ class User:
             verified=user.verified,
             locale=user.locale,
         )
+
+        self._db = user
+
+        return self
 
     def create_token(self):
         return create_token(self._id, self._password)
@@ -91,13 +125,50 @@ class User:
             locale=self._locale,
         )
 
+        self._db = udb
+
         self._id = udb.id
 
-    def for_transmission(self):
+    def commit_edit(
+        self,
+        email: str | None = None,
+        username: str | None = None,
+        discriminator: str | None = None,
+        avatar_url: str | None = None,
+        banner_url: str | None = None,
+        bio: str | None = None,
+    ):
+        d: dict[str, str] = {}
+
+        if email:
+            d['email'] = email
+
+        if username:
+            d['username'] = username
+
+        if discriminator:
+            d['discriminator'] = discriminator
+
+        if avatar_url:
+            d['avatar_url'] = avatar_url
+
+        if banner_url:
+            d['banner_url'] = banner_url
+
+        if bio:
+            d['bio'] = bio
+
+        self._db = self._db.update(**d)
+
+        for k, v in d.keys():
+            setattr('_' + k, v)
+
+    def for_transmission(self, remove_email: bool = True):
         dict_return = {}
 
         dict_return['id'] = str(self._id)
-        dict_return['email'] = self._email
+        if not remove_email:
+            dict_return['email'] = self._email
         dict_return['username'] = self._username
         dict_return['discriminator'] = self._discriminator
         dict_return['joined_at'] = self._joined_at

@@ -19,9 +19,15 @@ class CreateUser(BaseModel):
 
 
 class EditUser(BaseModel):
+    username: str | None = Field(max_length=30)
+    email: str | None = Field(
+        max_length=45, regex=r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    )
+    password: str | None
     discriminator: str | None = Field(max_length=4, regex=NUMBER_REGEX)
     avatar_url: str | None = Field(max_length=50, regex=URL_REGEX)
     banner_url: str | None = Field(max_length=50, regex=URL_REGEX)
+    bio: str | None = Field(max_length=300)
 
 
 def valid_discriminator(d: str) -> bool:

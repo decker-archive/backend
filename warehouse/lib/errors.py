@@ -14,6 +14,11 @@ class UserAlreadyExists(Exception):
     This user already exists.
     """
 
+class UserDoesNotExist(Exception):
+    """
+    This user already exists.
+    """
+
 
 class AuthenticationError(Exception):
     """

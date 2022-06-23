@@ -5,7 +5,7 @@ import random
 
 from fastapi import Header
 
-from warehouse.db import get_date
+from warehouse.db import get_date, hashpass
 from warehouse.lib.payloads import CreateUser, EditUser
 from warehouse.lib.users.basic import User
 
@@ -41,7 +41,7 @@ async def create_user(payload: CreateUser):
 
     await user.commit()
 
-    transmission = user.for_transmission()
+    transmission = user.for_transmission(False)
     transmission['_tk'] = user.create_token()
 
     return transmission
@@ -50,4 +50,41 @@ async def create_user(payload: CreateUser):
 async def edit_user(payload: EditUser, authorization: str = Header(default=None)):
     user = User.from_authorization(token=authorization)
 
-    # TODO: Finish
+    edited_content = {}
+
+    if payload.username:
+        edited_content['username'] = payload.username
+
+    if payload.email:
+        edited_content['email'] = payload.email
+
+    if payload.password:
+        edited_content['password'] = hashpass(payload.password)
+
+    if payload.discriminator:
+        edited_content['discriminator'] = payload.discriminator
+
+    if payload.avatar_url:
+        edited_content['avatar_url'] = payload.avatar_url
+
+    if payload.banner_url:
+        edited_content['banner_url'] = payload.banner_url
+
+    if payload.bio:
+        edited_content['bio'] = payload.bio
+
+    user.commit_edit(**edited_content)
+
+    return user.for_transmission(False)
+
+
+async def get_user(user_id: int, authorization: str = Header(default=None)):
+    User.from_authorization(token=authorization)
+
+    try:
+        user = User.from_id(user_id)
+    except:
+        return {'err_code': 2, 'message': 'User does not exist'}
+
+    return user.for_transmission()
+
