@@ -8,7 +8,7 @@ import dotenv
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection, management
 
-from .models.users import User
+from .models import User, Guild, GuildFeature
 
 dotenv.load_dotenv()
 cloud = {'secure_connect_bundle': os.getcwd() + r'/private/cass-bundle.zip'}
@@ -44,3 +44,5 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     connect()
     management.sync_table(User)
+    management.sync_table(Guild)
+    management.sync_table(GuildFeature)

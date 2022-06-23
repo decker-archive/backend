@@ -17,7 +17,7 @@ class UserAlreadyExists(Exception):
 
 class UserDoesNotExist(Exception):
     """
-    This user already exists.
+    This user does not exist.
     """
 
 
