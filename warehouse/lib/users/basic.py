@@ -41,9 +41,7 @@ class User:
     @classmethod
     def from_id(cls, id: int):
         try:
-            udb: UserDB = UserDB.objects(
-                UserDB.id==id
-            ).get()
+            udb: UserDB = UserDB.objects(UserDB.id == id).get()
         except:
             raise UserDoesNotExist()
 
@@ -59,7 +57,7 @@ class User:
             flags=udb.flags,
             bio=udb.bio,
             verified=udb.verified,
-            locale=udb.locale
+            locale=udb.locale,
         )
         self._db = udb
 
@@ -69,8 +67,7 @@ class User:
     def user_exists(cls, username: str, discriminator: str) -> None:
         try:
             UserDB.objects(
-                UserDB.username==username,
-                UserDB.discriminator==discriminator
+                UserDB.username == username, UserDB.discriminator == discriminator
             ).get()
         except:
             raise UserAlreadyExists()

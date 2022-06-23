@@ -87,4 +87,3 @@ async def get_user(user_id: int, authorization: str = Header(default=None)):
         return {'err_code': 2, 'message': 'User does not exist'}
 
     return user.for_transmission()
-
