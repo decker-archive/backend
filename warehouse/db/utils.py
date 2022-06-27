@@ -24,3 +24,9 @@ async def hashpass(pswd: str) -> str:
         None, bcrypt.hashpw, pswd.encode(), bcrypt.gensalt(16)
     )
     return result.decode()
+
+
+async def verifypass(pswd: str, hpswd: str) -> bool:
+    loop = asyncio.get_running_loop()
+    result = await loop.run_in_executor(None, bcrypt.checkpw, pswd, hpswd)
+    return result

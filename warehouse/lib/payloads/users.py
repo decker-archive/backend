@@ -3,9 +3,14 @@ Copyright (c) 2022 Mozaiku Inc. All Rights Reserved.
 """
 from pydantic import BaseModel, Field
 
-EMAIL_REGEX = r'r\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+EMAIL_REGEX = r'r\b[A-Za-z0-9._%+-]+@[a-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 USERNAME_REGEX = r'^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$'
 URL_REGEX = r'[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#])*'
+
+
+class Login(BaseModel):
+    email: str = Field(max_length=45, regex=EMAIL_REGEX)
+    password: str
 
 
 class CreateUser(BaseModel):

@@ -2,7 +2,7 @@
 Copyright (c) 2022 Mozaiku Inc. All Rights Reserved.
 """
 from warehouse.db import User as UserDB
-from warehouse.db import hashpass, snowflake_factory
+from warehouse.db import hashpass, snowflake_factory, verifypass
 from warehouse.lib.errors import CommitError, UserAlreadyExists, UserDoesNotExist
 from warehouse.lib.users.authorization import create_token, verify_token
 
@@ -35,6 +35,59 @@ class User:
         self._bio = bio
         self._verified = verified
         self._locale = locale
+
+    @classmethod
+    async def login(cls, email: str, password: str):
+        try:
+            db: UserDB = UserDB.objects(UserDB.email == email).get()
+        except:
+            return
+
+        if not await verifypass(password, db.password):
+            return
+
+        self = cls(
+            id=db.id,
+            email=db.email,
+            password=db.password,
+            username=db.username,
+            joined_at=db.joined_at,
+            avatar_url=db.avatar_url,
+            banner_url=db.banner_url,
+            flags=db.flags,
+            bio=db.bio,
+            verified=db.verified,
+            locale=db.locale,
+        )
+        self._db = db
+
+        return self
+
+
+    @classmethod
+    def from_username(cls, username: str):
+        try:
+            udb: UserDB = UserDB.objects(UserDB.username == username).get()
+        except:
+            raise UserDoesNotExist()
+
+        self = cls(
+            id=udb.id,
+            email=udb.email,
+            password=udb.password,
+            username=udb.username,
+            joined_at=udb.joined_at,
+            avatar_url=udb.avatar_url,
+            banner_url=udb.banner_url,
+            flags=udb.flags,
+            bio=udb.bio,
+            verified=udb.verified,
+            locale=udb.locale,
+        )
+        self._db = udb
+
+        return self
+    
 
     @classmethod
     def from_id(cls, id: int):

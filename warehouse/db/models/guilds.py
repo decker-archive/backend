@@ -8,14 +8,12 @@ class Guild(models.Model):
     __table_name__ = 'guild'
     id: int = columns.BigInt(primary_key=True)
     name: str = columns.Text(index=True)
+    display_name: str = columns.Text()
     description: str = columns.Text()
     icon_url: str = columns.Text()
     banner_url: str = columns.Text()
     owner_id: str = columns.Text(index=True)
     nsfw: bool = columns.Boolean()
-    large: bool = columns.Boolean()
-    permissions: int = columns.BigInt()
-    splash_url: str = columns.Text()
     verified: bool = columns.Boolean()
 
 
@@ -35,3 +33,4 @@ class GuildMember(models.Model):
     joined_at: str = columns.DateTime()
     nick: str = columns.Text()
     owner: bool = columns.Boolean()
+    mod: bool = columns.Boolean()
