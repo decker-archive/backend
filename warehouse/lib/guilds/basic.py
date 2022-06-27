@@ -2,8 +2,14 @@
 Copyright (c) 2022 Mozaiku Inc. All Rights Reserved.
 """
 from warehouse.db import Guild as GuildDB
-from warehouse.db import GuildFeature, GuildMember, get_date, snowflake_factory
-from warehouse.lib.errors import AlreadyMember, GuildAlreadyExists, MemberIsMod, NotAMember, GuildDoesNotExist
+from warehouse.db import GuildFeature, GuildMember, get_date, snowflake_factory, BANNED_NAMES
+from warehouse.lib.errors import (
+    AlreadyMember,
+    GuildAlreadyExists,
+    GuildDoesNotExist,
+    MemberIsMod,
+    NotAMember,
+)
 from warehouse.lib.users import User
 
 
@@ -19,6 +25,9 @@ class Guild:
         owner_id: int | User | None = None,
         nsfw: bool = False,
         verified: str | None = None,
+        permissions: int = 0,
+        archived: bool = False
+
     ):
         self.exists = id != None
 
@@ -30,6 +39,8 @@ class Guild:
         self._banner_url = banner_url
         self._nsfw = nsfw
         self._verified = verified
+        self._permissions = permissions
+        self._archived = archived
         self._owner = User.from_id(owner_id) if isinstance(owner_id, int) else owner_id
         self._features = []
 
@@ -49,9 +60,7 @@ class Guild:
     @classmethod
     def from_name(cls, name: str):
         try:
-            gdb: GuildDB = GuildDB.objects(
-                GuildDB.name==name
-            ).get()
+            gdb: GuildDB = GuildDB.objects(GuildDB.name == name).get()
         except:
             raise GuildDoesNotExist()
 
@@ -64,7 +73,9 @@ class Guild:
             banner_url=gdb.banner_url,
             nsfw=gdb.nsfw,
             verified=gdb.verified,
-            owner_id=gdb.owner_id
+            owner_id=gdb.owner_id,
+            archived=gdb.archived,
+            permissions=gdb.permissions
         )
         self._db = gdb
 
@@ -84,6 +95,16 @@ class Guild:
         ret['owner'] = self._owner.for_transmission()
         ret['features'] = self._features
 
+        if self._archived is None:
+            ret['archived'] = False
+        else:
+            ret['archived'] = self._archived
+
+        if self._permissions is None:
+            ret['permissions'] = 0
+        else:
+            ret['permissions'] = self._permissions
+
         return ret
 
     def commit(self):
@@ -92,6 +113,9 @@ class Guild:
         """
 
         if self.exists:
+            raise GuildAlreadyExists()
+
+        if self._name in BANNED_NAMES:
             raise GuildAlreadyExists()
 
         try:
@@ -111,14 +135,15 @@ class Guild:
             nsfw=self._nsfw,
             verified=self._verified,
             owner_id=self._owner._id,
+            permissions=self._permissions,
+            archived=self._archived
         )
 
-    
     def edit(
         self,
         display_name: str | None = None,
         nsfw: bool | None = None,
-        description: str | None = None
+        description: str | None = None,
     ):
         e = {}
 
@@ -134,10 +159,7 @@ class Guild:
             self._description = description
             e['description'] = description
 
-        self._db = self._db.update(
-            **e
-        )
-
+        self._db = self._db.update(**e)
 
     def member_exists(self, user: User):
         try:
@@ -161,7 +183,7 @@ class Guild:
             joined_at=get_date(),
             nick='',
             owner=False,
-            mod=False
+            mod=False,
         )
 
     def remove_member(self, user: User):
@@ -178,8 +200,7 @@ class Guild:
     def get_member(self, user: User):
         try:
             member: GuildMember = GuildMember.objects(
-                GuildMember.user_id==user._id,
-                GuildMember.guild_id==self._id
+                GuildMember.user_id == user._id, GuildMember.guild_id == self._id
             ).get()
         except:
             raise NotAMember()

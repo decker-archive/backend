@@ -4,14 +4,18 @@ Copyright (c) 2022 Mozaiku Inc. All Rights Reserved.
 import logging
 import os
 
-import dotenv
+from dotenv import load_dotenv
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection, management
 
-from .models import Guild, GuildFeature, User
+from warehouse.db.models import Guild, GuildFeature, GuildMember, User
 
-dotenv.load_dotenv()
-cloud = {'secure_connect_bundle': os.getcwd() + r'/private/cass-bundle.zip'}
+BUNDLE_LOC = os.getcwd() + r'\private\cass-bundle.zip'
+
+if not os.getenv('CLIENT_ID'):
+    load_dotenv()
+
+cloud = {'secure_connect_bundle': BUNDLE_LOC}
 auth_provider = PlainTextAuthProvider(
     os.getenv('CLIENT_ID'), os.getenv('CLIENT_SECRET')
 )
@@ -19,7 +23,7 @@ auth_provider = PlainTextAuthProvider(
 
 def connect():
     try:
-        if os.getenv('SAFE', 'false') == 'true':
+        if os.getenv('SAFE', 'true') == 'true':
             connection.setup(
                 None,
                 'warehouse',
@@ -45,4 +49,5 @@ if __name__ == '__main__':
     connect()
     management.sync_table(User)
     management.sync_table(Guild)
+    management.sync_table(GuildMember)
     management.sync_table(GuildFeature)

@@ -1,7 +1,7 @@
 """
 Copyright (c) 2022 Mozaiku Inc. All Rights Reserved.
 """
-from warehouse.db import User as UserDB
+from warehouse.db.models import User as UserDB, UserFlags
 from warehouse.db import hashpass, snowflake_factory, verifypass
 from warehouse.lib.errors import CommitError, UserAlreadyExists, UserDoesNotExist
 from warehouse.lib.users.authorization import create_token, verify_token
@@ -63,7 +63,6 @@ class User:
 
         return self
 
-
     @classmethod
     def from_username(cls, username: str):
         try:
@@ -87,7 +86,6 @@ class User:
         self._db = udb
 
         return self
-    
 
     @classmethod
     def from_id(cls, id: int):
@@ -114,15 +112,6 @@ class User:
         return self
 
     @classmethod
-    def user_exists(cls, username: str, discriminator: str) -> None:
-        try:
-            UserDB.objects(
-                UserDB.username == username, UserDB.discriminator == discriminator
-            ).get()
-        except:
-            raise UserAlreadyExists()
-
-    @classmethod
     def from_authorization(cls, token: str) -> "User":
         user = verify_token(token=token)
 
@@ -131,7 +120,6 @@ class User:
             email=user.email,
             password=user.password,
             username=user.username,
-            discriminator=user.discriminator,
             joined_at=user.joined_at,
             avatar_url=user.avatar_url,
             banner_url=user.banner_url,
@@ -169,7 +157,6 @@ class User:
             email=self._email,
             password=self._password,  # type: ignore
             username=self._username,
-            discriminator=self._discriminator,
             joined_at=self._joined_at,
             avatar_url=self._avatar_url,
             banner_url=self._banner_url,
@@ -177,6 +164,7 @@ class User:
             bio=self._bio,
             verified=self._verified,
             locale=self._locale,
+            display_name=''
         )
 
         self._db = udb
@@ -217,16 +205,27 @@ class User:
         dict_return = {}
 
         dict_return['id'] = str(self._id)
-        if not remove_email:
-            dict_return['email'] = self._email
         dict_return['username'] = self._username
-        dict_return['discriminator'] = self._discriminator
-        dict_return['joined_at'] = self._joined_at
+        dict_return['display_name'] = ''
         dict_return['avatar_url'] = self._avatar_url
         dict_return['banner_url'] = self._banner_url
-        dict_return['flags'] = self._flags
+        if not remove_email:
+            dict_return['email'] = self._email
+        dict_return['joined_at'] = self._joined_at
         dict_return['bio'] = self._bio
         dict_return['verified'] = self._verified
-        dict_return['locale'] = self._verified
+        dict_return['locale'] = self._locale
+        dict_return['badges'] = []
+
+        f = UserFlags(self._flags)
+
+        if f.bug_hunter:
+            dict_return['badges'].append('Bug Hunter')
+        if f.early_supporter:
+            dict_return['badges'].append('Early Supporter')
+        if f.staff:
+            dict_return['badges'].append('Staff')
+        if f.verified:
+            dict_return['badges'].append('Verified Guild Owner')
 
         return dict_return

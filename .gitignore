@@ -1,3 +1,9 @@
+# envs
 .env
+# cache
 __pycache__/
+# testing
 tests/
+# db secrets
+private/
+cass-bundle.zip

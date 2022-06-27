@@ -44,12 +44,25 @@ class NotAMember(Exception):
     User is not a member.
     """
 
+
 class GuildDoesNotExist(Exception):
     """
     This guild does not exist.
     """
 
+
 class MemberIsMod(Exception):
     """
     This member is a mod.
+    """
+
+
+class AlreadyLoggedin(Exception):
+    """
+    This user is already logged into an account.
+    """
+
+class InvalidCredentials(Exception):
+    """
+    Given invalid credentials on login.
     """

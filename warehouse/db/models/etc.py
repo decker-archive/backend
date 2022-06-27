@@ -16,3 +16,8 @@ class UserFlags:
         self.staff = has(1 << 1)
         self.verified = has(1 << 2)
         self.bug_hunter = has(1 << 3)
+
+class GuildPermissions:
+    def __init__(self, __v: int):
+        # TODO: Start Partitioning
+        has = functools.partial(_has_flag, __v)

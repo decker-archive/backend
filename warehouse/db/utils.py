@@ -28,5 +28,17 @@ async def hashpass(pswd: str) -> str:
 
 async def verifypass(pswd: str, hpswd: str) -> bool:
     loop = asyncio.get_running_loop()
-    result = await loop.run_in_executor(None, bcrypt.checkpw, pswd, hpswd)
+    result = await loop.run_in_executor(None, bcrypt.checkpw, pswd.encode(), hpswd.encode())
     return result
+
+BANNED_NAMES = [
+   'create',
+   'delete',
+   'blog',
+   'wiki',
+   'support',
+	'venera',
+	'moderators',
+	'place',
+	'changelog'
+]

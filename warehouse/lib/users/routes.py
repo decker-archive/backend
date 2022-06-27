@@ -1,14 +1,24 @@
 """
 Copyright (c) 2022 Mozaiku Inc. All Rights Reserved.
 """
-from fastapi import Cookie, Response, status
+from fastapi import Response, Cookie, APIRouter
 
 from warehouse.db import get_date, hashpass
+from warehouse.lib.errors import AlreadyLoggedin, InvalidCredentials
 from warehouse.lib.payloads import CreateUser, EditUser, Login
 from warehouse.lib.users.basic import User
 
+users = APIRouter()
 
-async def create_user(payload: CreateUser, resp: Response):
+@users.post('/api/users', status_code=201)
+async def create_user(
+    response: Response,
+    payload: CreateUser,
+    venera_authorization: str | None = Cookie(default=None),
+):
+    if venera_authorization:
+        raise AlreadyLoggedin()
+
     user = User(
         email=payload.email,
         password=payload.password,
@@ -24,47 +34,43 @@ async def create_user(payload: CreateUser, resp: Response):
     await user.commit()
 
     transmission = user.for_transmission(False)
-    resp.status_code = status.HTTP_201_CREATED
-    resp.set_cookie(
+    response.set_cookie(
         'venera_authorization', user.create_token(), secure=True, httponly=True
     )
 
     return transmission
 
+@users.get('/api/users/login/', status_code=203, response_model=str)
+async def login(
+    response: Response,
+    email: str,
+    password: str,
+    venera_authorization: str | None = Cookie(default=None),
+):
+    if venera_authorization:
+        raise AlreadyLoggedin()
 
-async def login(payload: Login, resp: Response):
-    u = await User.login(
-        email=payload.email,
-        password=payload.password
-    )
+    u = await User.login(email=email, password=password)
 
     if u is None:
-        resp.status_code = status.HTTP_403_FORBIDDEN
-        return {
-            'err': 'Invalid email or password'
-        }
+        raise InvalidCredentials()
 
-    resp.set_cookie(
-        'venera_authorization',
-        u.create_token(),
-        secure=True,
-        httponly=True
+    response.set_cookie(
+        'venera_authorization', u.create_token(), secure=True, httponly=True
     )
 
-    return {
-        'success': True
-    }
+    return ''
 
-
-async def logout(resp: Response):
+@users.get('/api/users/logout')
+async def logout(response: Response):
     try:
-        resp.delete_cookie('venera_authorization', secure=True, httponly=True)
+        response.delete_cookie('venera_authorization', secure=True, httponly=True)
     except:
-        return {
-            'success': True
-        }
+        return {'success': False}
+    else:
+        return {'success': True}
 
-
+@users.patch('/api/users/@me')
 async def edit_user(
     payload: EditUser, venera_authorization: str = Cookie(default=None)
 ):
@@ -94,16 +100,14 @@ async def edit_user(
 
     return user.for_transmission(False)
 
+@users.get('/api/users/@me')
+def get_me(venera_authorization: str = Cookie(default=None)):
+    me = User.from_authorization(venera_authorization)
 
-async def get_user(
-    username: int, resp: Response, venera_authorization: str = Cookie(default=None)
-):
-    User.from_authorization(token=venera_authorization)
+    return me.for_transmission()
 
-    try:
-        user = User.from_username(username=username)
-    except:
-        resp.status_code = status.HTTP_404_NOT_FOUND
-        return {'err_code': 2, 'message': 'User does not exist'}
+@users.get('/api/users/{username}')
+async def get_user(username: str):
+    user = User.from_username(username=username)
 
     return user.for_transmission()

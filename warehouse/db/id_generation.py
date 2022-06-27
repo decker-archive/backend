@@ -30,5 +30,6 @@ class SnowflakeFactory:
 
 snowflake_factory = SnowflakeFactory()
 
-while True:
-    print(snowflake_factory.manufacture())
+if __name__ == '__main__':
+    while True:
+        print(snowflake_factory.manufacture())

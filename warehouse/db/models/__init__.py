@@ -8,3 +8,4 @@ Models used in the Warehouse DB.
 """
 from .guilds import *
 from .users import *
+from .etc import *

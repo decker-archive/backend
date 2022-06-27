@@ -14,7 +14,9 @@ class Guild(models.Model):
     banner_url: str = columns.Text()
     owner_id: str = columns.Text(index=True)
     nsfw: bool = columns.Boolean()
+    permissions = columns.BigInt()
     verified: bool = columns.Boolean()
+    archived: bool = columns.Boolean()
 
 
 class GuildFeature(models.Model):

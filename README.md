@@ -1,2 +1,2 @@
 # Warehouse
-Warehouse is the backend api for Venera.
+Warehouse is the backend api for venera.
