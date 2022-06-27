@@ -15,6 +15,12 @@ class UserAlreadyExists(Exception):
     """
 
 
+class GuildAlreadyExists(Exception):
+    """
+    This guild already exists.
+    """
+
+
 class UserDoesNotExist(Exception):
     """
     This user does not exist.
@@ -24,4 +30,16 @@ class UserDoesNotExist(Exception):
 class AuthenticationError(Exception):
     """
     When authentication fails.
+    """
+
+
+class AlreadyMember(Exception):
+    """
+    User is already a member.
+    """
+
+
+class NotAMember(Exception):
+    """
+    User is not a member.
     """

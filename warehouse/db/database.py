@@ -8,7 +8,7 @@ import dotenv
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection, management
 
-from .models import User, Guild, GuildFeature
+from .models import Guild, GuildFeature, User
 
 dotenv.load_dotenv()
 cloud = {'secure_connect_bundle': os.getcwd() + r'/private/cass-bundle.zip'}

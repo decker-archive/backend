@@ -14,7 +14,6 @@ class User:
         email: str | None = None,
         password: str | None = None,
         username: str | None = None,
-        discriminator: str | None = None,
         joined_at: str | None = None,
         avatar_url: str | None = None,
         banner_url: str | None = None,
@@ -29,7 +28,6 @@ class User:
         self._email = email
         self._password = password
         self._username = username
-        self._discriminator = discriminator
         self._joined_at = joined_at
         self._avatar_url = avatar_url
         self._banner_url = banner_url
@@ -50,7 +48,6 @@ class User:
             email=udb.email,
             password=udb.password,
             username=udb.username,
-            discriminator=udb.discriminator,
             joined_at=udb.joined_at,
             avatar_url=udb.avatar_url,
             banner_url=udb.banner_url,
@@ -96,7 +93,7 @@ class User:
         return self
 
     def create_token(self):
-        return create_token(self._id, self._password) # type: ignore
+        return create_token(self._id, self._password)  # type: ignore
 
     async def commit(self):
         """
@@ -105,7 +102,14 @@ class User:
         if self._exists:
             raise CommitError('This user already exists.')
 
-        self._password = await hashpass(self._password) # type: ignore
+        try:
+            UserDB.objects(UserDB.username == self._username).get()
+        except:
+            pass
+        else:
+            raise UserAlreadyExists()
+
+        self._password = await hashpass(self._password)  # type: ignore
 
         udb: UserDB = UserDB.create(
             id=snowflake_factory.manufacture(),
@@ -130,7 +134,6 @@ class User:
         self,
         email: str | None = None,
         username: str | None = None,
-        discriminator: str | None = None,
         avatar_url: str | None = None,
         banner_url: str | None = None,
         bio: str | None = None,
@@ -142,9 +145,6 @@ class User:
 
         if username:
             d['username'] = username
-
-        if discriminator:
-            d['discriminator'] = discriminator
 
         if avatar_url:
             d['avatar_url'] = avatar_url
