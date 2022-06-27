@@ -247,7 +247,7 @@ class User:
         dict_return['locale'] = self._locale
         dict_return['badges'] = []
 
-        f = UserFlags(self._flags)
+        f = UserFlags(self._flags) # type: ignore
 
         if f.bug_hunter:
             dict_return['badges'].append('Bug Hunter')

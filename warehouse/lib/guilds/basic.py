@@ -44,7 +44,7 @@ class Guild:
         banner_url: str | None = '',
         owner_id: int | User | None = None,
         nsfw: bool = False,
-        verified: str | None = None,
+        verified: bool | None = None,
         permissions: int = 0,
         archived: bool = False
 
@@ -93,7 +93,7 @@ class Guild:
             banner_url=gdb.banner_url,
             nsfw=gdb.nsfw,
             verified=gdb.verified,
-            owner_id=gdb.owner_id,
+            owner_id=gdb.owner_id, # type: ignore
             archived=gdb.archived,
             permissions=gdb.permissions
         )
@@ -112,7 +112,7 @@ class Guild:
         ret['banner_url'] = self._banner_url
         ret['nsfw'] = self._nsfw
         ret['verified'] = self._verified
-        ret['owner'] = self._owner.for_transmission()
+        ret['owner'] = self._owner.for_transmission() # type: ignore
         ret['features'] = self._features
 
         if self._archived is None:
@@ -154,7 +154,7 @@ class Guild:
             banner_url=self._banner_url,
             nsfw=self._nsfw,
             verified=self._verified,
-            owner_id=self._owner._id,
+            owner_id=self._owner._id, # type: ignore
             permissions=self._permissions,
             archived=self._archived
         )
