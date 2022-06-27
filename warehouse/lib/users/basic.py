@@ -1,6 +1,26 @@
-"""
-Copyright (c) 2022 Mozaiku Inc. All Rights Reserved.
-"""
+###############################################################################
+# The contents of this file are subject to the Common Public Attribution
+# License Version 1.0. (the "License"); you may not use this file except in
+# compliance with the License. You may obtain a copy of the License at
+# http://veneralab.com/assets/license. The License is based on the Mozilla Public
+# License Version 1.1, but Sections 14 and 15 have been added to cover use of
+# software over a computer network and provide for limited attribution for the
+# Original Developer. In addition, Exhibit A has been modified to be consistent
+# with Exhibit B.
+#
+# Software distributed under the License is distributed on an "AS IS" basis,
+# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+# the specific language governing rights and limitations under the License.
+#
+# The Original Code is venera.
+#
+# The Original Developer is the Initial Developer.  The Initial Developer of
+# the Original Code is venera Inc.
+#
+# All portions of the code written by venera are Copyright (c) 2021-2022 venera
+# Inc. All Rights Reserved.
+###############################################################################
+
 from warehouse.db.models import User as UserDB, UserFlags
 from warehouse.db import hashpass, snowflake_factory, verifypass
 from warehouse.lib.errors import CommitError, UserAlreadyExists, UserDoesNotExist
@@ -21,6 +41,7 @@ class User:
         bio: str | None = None,
         verified: bool = False,
         locale: str | None = None,
+        display_name: str | None = None
     ):
         self._exists: bool = id != None
 
@@ -35,6 +56,7 @@ class User:
         self._bio = bio
         self._verified = verified
         self._locale = locale
+        self._display_name = display_name
 
     @classmethod
     async def login(cls, email: str, password: str):
@@ -58,6 +80,7 @@ class User:
             bio=db.bio,
             verified=db.verified,
             locale=db.locale,
+            display_name=db.display_name
         )
         self._db = db
 
@@ -82,6 +105,7 @@ class User:
             bio=udb.bio,
             verified=udb.verified,
             locale=udb.locale,
+            display_name=udb.display_name
         )
         self._db = udb
 
@@ -106,6 +130,7 @@ class User:
             bio=udb.bio,
             verified=udb.verified,
             locale=udb.locale,
+            display_name=udb.display_name
         )
         self._db = udb
 
@@ -127,6 +152,7 @@ class User:
             bio=user.bio,
             verified=user.verified,
             locale=user.locale,
+            display_name=user.display_name
         )
 
         self._db = user
@@ -178,6 +204,7 @@ class User:
         avatar_url: str | None = None,
         banner_url: str | None = None,
         bio: str | None = None,
+        display_name: str | None = None
     ):
         d: dict[str, str] = {}
 
@@ -196,6 +223,9 @@ class User:
         if bio:
             d['bio'] = bio
 
+        if display_name:
+            d['display_name'] = display_name
+
         self._db = self._db.update(**d)
 
         for k, v in d.keys():
@@ -206,7 +236,7 @@ class User:
 
         dict_return['id'] = str(self._id)
         dict_return['username'] = self._username
-        dict_return['display_name'] = ''
+        dict_return['display_name'] = self._display_name if self._display_name != None else ''
         dict_return['avatar_url'] = self._avatar_url
         dict_return['banner_url'] = self._banner_url
         if not remove_email:

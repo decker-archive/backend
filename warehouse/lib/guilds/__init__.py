@@ -3,8 +3,8 @@ warehouse.guild
 ~~~~~~~~~~~~~~~
 Warehouse's Guild Module.
 
-:license: None (Proprietary)
-:copyight: 2022 Mozaiku Inc. All Rights Reserved.
+:license: CPAL-1.0
+:copyight: 2021-2022 venera Inc. All Rights Reserved.
 """
 from .basic import *
 from .routes import *
