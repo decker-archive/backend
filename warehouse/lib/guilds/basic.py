@@ -1,5 +1,5 @@
 """
-Copyright (c) 2022 Anavereum Inc. All Rights Reserved.
+Copyright (c) 2022 Mozaiku Inc. All Rights Reserved.
 """
 from warehouse.db import Guild as GuildDB
 from warehouse.db import GuildFeature, GuildMember, get_date, snowflake_factory
