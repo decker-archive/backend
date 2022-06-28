@@ -22,6 +22,7 @@
 ###############################################################################
 
 from pydantic import BaseModel, Field, EmailStr
+from typing import Optional
 
 USERNAME_REGEX = r'^(?=.{3,21}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$'
 URL_REGEX = r'[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#])*'
@@ -40,10 +41,10 @@ class CreateUser(BaseModel):
 
 
 class EditUser(BaseModel):
-    username: str | None = Field(regex=USERNAME_REGEX)
-    display_name: str | None = Field(max_length=21, min_length=3, regex=DISPLAY_NAME_REGEX)
-    email: EmailStr | None
-    password: str | None
-    avatar_url: str | None = Field(max_length=50, regex=URL_REGEX)
-    banner_url: str | None = Field(max_length=50, regex=URL_REGEX)
-    bio: str | None = Field(max_length=300)
+    username: Optional[str] = Field(regex=USERNAME_REGEX)
+    display_name: Optional[str] = Field(max_length=21, min_length=3, regex=DISPLAY_NAME_REGEX)
+    email: Optional[EmailStr]
+    password: Optional[str]
+    avatar_url: Optional[str] = Field(max_length=50, regex=URL_REGEX)
+    banner_url: Optional[str] = Field(max_length=50, regex=URL_REGEX)
+    bio: Optional[str] = Field(max_length=300)

@@ -27,6 +27,7 @@ from warehouse.db import get_date, hashpass
 from warehouse.lib.errors import AlreadyLoggedin, InvalidCredentials
 from warehouse.lib.payloads import CreateUser, EditUser, Login
 from warehouse.lib.users.basic import User
+from typing import Optional
 
 users = APIRouter()
 
@@ -34,7 +35,7 @@ users = APIRouter()
 async def create_user(
     response: Response,
     payload: CreateUser,
-    venera_authorization: str | None = Cookie(default=None),
+    venera_authorization: Optional[str] = Cookie(default=None),
 ):
     if venera_authorization:
         raise AlreadyLoggedin()
@@ -65,7 +66,7 @@ async def login(
     response: Response,
     email: str,
     password: str,
-    venera_authorization: str | None = Cookie(default=None),
+    venera_authorization: Optional[str] = Cookie(default=None),
 ):
     if venera_authorization:
         raise AlreadyLoggedin()
@@ -82,7 +83,7 @@ async def login(
     return ''
 
 @users.get('/api/users/logout')
-async def logout(response: Response):
+def logout(response: Response):
     try:
         response.delete_cookie('venera_authorization', secure=True, httponly=True)
     except:
@@ -91,7 +92,7 @@ async def logout(response: Response):
         return {'success': True}
 
 @users.patch('/api/users/@me')
-async def edit_user(
+def edit_user(
     payload: EditUser, venera_authorization: str = Cookie(default=None)
 ):
     user = User.from_authorization(token=venera_authorization)
@@ -127,7 +128,7 @@ def get_me(venera_authorization: str = Cookie(default=None)):
     return me.for_transmission()
 
 @users.get('/api/users/{username}')
-async def get_user(username: str):
+def get_user(username: str):
     user = User.from_username(username=username)
 
     return user.for_transmission()

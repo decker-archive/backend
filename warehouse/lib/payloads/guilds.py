@@ -22,6 +22,7 @@
 ###############################################################################
 
 from pydantic import BaseModel, Field
+from typing import Optional
 
 from warehouse.lib.payloads.users import USERNAME_REGEX
 
@@ -33,6 +34,6 @@ class CreateGuild(BaseModel):
 
 
 class EditGuild(BaseModel):
-    display_name: str | None
-    nsfw: bool | None
-    description: str | None
+    display_name: Optional[str]
+    nsfw: Optional[bool]
+    description: Optional[str]

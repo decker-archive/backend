@@ -25,23 +25,24 @@ from warehouse.db.models import User as UserDB, UserFlags
 from warehouse.db import hashpass, snowflake_factory, verifypass
 from warehouse.lib.errors import CommitError, UserAlreadyExists, UserDoesNotExist
 from warehouse.lib.users.authorization import create_token, verify_token
+from typing import Optional
 
 
 class User:
     def __init__(
         self,
-        id: int | None = None,
-        email: str | None = None,
-        password: str | None = None,
-        username: str | None = None,
-        joined_at: str | None = None,
-        avatar_url: str | None = None,
-        banner_url: str | None = None,
-        flags: int | None = None,
-        bio: str | None = None,
+        id: Optional[int] = None,
+        email: Optional[str] = None,
+        password: Optional[str] = None,
+        username: Optional[str] = None,
+        joined_at: Optional[str] = None,
+        avatar_url: Optional[str] = None,
+        banner_url: Optional[str] = None,
+        flags: Optional[int] = None,
+        bio: Optional[str] = None,
         verified: bool = False,
-        locale: str | None = None,
-        display_name: str | None = None
+        locale: Optional[str] = None,
+        display_name: Optional[str] = None
     ):
         self._exists: bool = id != None
 
@@ -181,7 +182,7 @@ class User:
         udb: UserDB = UserDB.create(
             id=snowflake_factory.manufacture(),
             email=self._email,
-            password=self._password,  # type: ignore
+            password=self._password,
             username=self._username,
             joined_at=self._joined_at,
             avatar_url=self._avatar_url,
@@ -199,12 +200,12 @@ class User:
 
     def commit_edit(
         self,
-        email: str | None = None,
-        username: str | None = None,
-        avatar_url: str | None = None,
-        banner_url: str | None = None,
-        bio: str | None = None,
-        display_name: str | None = None
+        email: Optional[str] = None,
+        username: Optional[str] = None,
+        avatar_url: Optional[str] = None,
+        banner_url: Optional[str] = None,
+        bio: Optional[str] = None,
+        display_name: Optional[str] = None
     ):
         d: dict[str, str] = {}
 

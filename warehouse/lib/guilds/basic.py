@@ -31,20 +31,21 @@ from warehouse.lib.errors import (
     NotAMember,
 )
 from warehouse.lib.users import User
+from typing import Optional
 
 
 class Guild:
     def __init__(
         self,
-        id: int | None = None,
-        name: str | None = None,
-        display_name: str | None = '',
-        description: str | None = '',
-        icon_url: str | None = '',
-        banner_url: str | None = '',
-        owner_id: int | User | None = None,
+        id: Optional[int] = None,
+        name: Optional[str] = None,
+        display_name: Optional[str] = '',
+        description: Optional[str] = '',
+        icon_url: Optional[str] = '',
+        banner_url: Optional[str] = '',
+        owner_id: Optional[int | User] = None,
         nsfw: bool = False,
-        verified: bool | None = None,
+        verified: Optional[bool] = None,
         permissions: int = 0,
         archived: bool = False
 
@@ -161,9 +162,9 @@ class Guild:
 
     def edit(
         self,
-        display_name: str | None = None,
-        nsfw: bool | None = None,
-        description: str | None = None,
+        display_name: Optional[str] = None,
+        nsfw: Optional[bool] = None,
+        description: Optional[str] = None,
     ):
         e = {}
 
