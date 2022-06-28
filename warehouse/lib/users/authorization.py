@@ -32,10 +32,10 @@ from warehouse.lib.errors import AuthenticationError
 
 def create_token(user_id: int, user_password: str) -> str:
     signer = itsdangerous.TimestampSigner(user_password)
-    user_id = str(user_id)  # type: ignore
-    user_id = base64.b64encode(user_id.encode())  # type: ignore
+    string_user_id = str(user_id)
+    encoded_user_id = base64.b64encode(string_user_id.encode())
 
-    return signer.sign(user_id).decode()  # type: ignore
+    return signer.sign(encoded_user_id).decode()
 
 
 def verify_token(token: str):
@@ -43,11 +43,11 @@ def verify_token(token: str):
         raise AuthenticationError()
 
     fragmented = token.split('.')
-    user_id = fragmented[0]
+    encoded_user_id = fragmented[0]
 
     try:
-        user_id = base64.b64decode(user_id.encode())
-        user_id = int(user_id)
+        decoded_user_id = base64.b64decode(encoded_user_id.encode())
+        user_id = int(decoded_user_id)
     except (ValueError, binascii.Error):
         raise AuthenticationError()
 
