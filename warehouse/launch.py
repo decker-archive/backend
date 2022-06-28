@@ -65,7 +65,7 @@ async def on_startup():
 @app.exception_handler(AuthenticationError)
 async def auth_error(*_):
     return ORJSONResponse(
-        {'erv': '401: Authentication Failed'},
+        {'detail': '401: Authentication Failed'},
         status_code=401,
         media_type='application/json',
     )
@@ -74,14 +74,14 @@ async def auth_error(*_):
 @app.exception_handler(GuildDoesNotExist)
 async def guild_notfound(*_):
     return ORJSONResponse(
-        {'erv': '404: Guild Not Found'}, status_code=404, media_type='application/json'
+        {'detail': '404: Guild Not Found'}, status_code=404, media_type='application/json'
     )
 
 
 @app.exception_handler(GuildAlreadyExists)
 async def guild_exists(*_):
     return ORJSONResponse(
-        {'erv': '400: This guild already exists'},
+        {'detail': '400: This guild already exists'},
         status_code=400,
         media_type='application/json',
     )
@@ -90,7 +90,7 @@ async def guild_exists(*_):
 @app.exception_handler(MemberIsMod)
 async def member_mod(*_):
     return ORJSONResponse(
-        {'erv': '403: This member is a mod'},
+        {'detail': '403: This member is a mod'},
         status_code=403,
         media_type='application/json',
     )
@@ -99,7 +99,7 @@ async def member_mod(*_):
 @app.exception_handler(AlreadyMember)
 async def alreadymember(*_):
     return ORJSONResponse(
-        {'erv': '400: You have already joined this guild'},
+        {'detail': '400: You have already joined this guild'},
         status_code=400,
         media_type='application/json',
     )
@@ -108,14 +108,14 @@ async def alreadymember(*_):
 @app.exception_handler(UserDoesNotExist)
 async def user_notfound(*_):
     return ORJSONResponse(
-        {'erv': '404: User not found'}, status_code=404, media_type='application/json'
+        {'detail': '404: User not found'}, status_code=404, media_type='application/json'
     )
 
 
 @app.exception_handler(AlreadyLoggedin)
 async def already_loggedin(*_):
     return ORJSONResponse(
-        {'erv': '400: You are already logged into another account'},
+        {'detail': '400: You are already logged into another account'},
         status_code=400,
         media_type='application/json',
     )
@@ -124,7 +124,7 @@ async def already_loggedin(*_):
 @app.exception_handler(NotAMember)
 async def notamember(*_):
     return ORJSONResponse(
-        {'erv': '404: This user is not a member'},
+        {'detail': '404: This user is not a member'},
         status_code=404,
         media_type='application/json',
     )
@@ -133,7 +133,7 @@ async def notamember(*_):
 @app.exception_handler(InvalidCredentials)
 async def invalid_creds(*_):
     return ORJSONResponse(
-        {'erv': '403: Invalid username or password'},
+        {'detail': '403: Invalid username or password'},
         status_code=403,
         media_type='application/json'
     )

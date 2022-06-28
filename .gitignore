@@ -3,7 +3,7 @@
 # cache
 __pycache__/
 # testing
-tests/
+tests-dev/
 # db secrets
 private/
 cass-bundle.zip
