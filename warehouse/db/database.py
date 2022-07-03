@@ -2,7 +2,7 @@
 # The contents of this file are subject to the Common Public Attribution
 # License Version 1.0. (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
-# http://veneralab.com/assets/license. The License is based on the Mozilla Public
+# http://mozaku.com/assets/license. The License is based on the Mozilla Public
 # License Version 1.1, but Sections 14 and 15 have been added to cover use of
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
@@ -12,21 +12,21 @@
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
 #
-# The Original Code is venera.
+# The Original Code is mozaku.
 #
 # The Original Developer is the Initial Developer.  The Initial Developer of
-# the Original Code is venera Inc.
+# the Original Code is Mozaku.
 #
-# All portions of the code written by venera are Copyright (c) 2021-2022 venera
+# All portions of the code written by mozaku are Copyright (c) 2021-2022 mozaku
 # Inc. All Rights Reserved.
 ###############################################################################
 
 import logging
 import os
 
-from dotenv import load_dotenv
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection, management
+from dotenv import load_dotenv
 
 from warehouse.db.models import Guild, GuildFeature, GuildMember, User
 

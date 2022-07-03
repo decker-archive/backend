@@ -2,7 +2,7 @@
 # The contents of this file are subject to the Common Public Attribution
 # License Version 1.0. (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
-# http://veneralab.com/assets/license. The License is based on the Mozilla Public
+# http://mozaku.com/assets/license. The License is based on the Mozilla Public
 # License Version 1.1, but Sections 14 and 15 have been added to cover use of
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
@@ -12,37 +12,40 @@
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
 #
-# The Original Code is venera.
+# The Original Code is mozaku.
 #
 # The Original Developer is the Initial Developer.  The Initial Developer of
-# the Original Code is venera Inc.
+# the Original Code is Mozaku.
 #
-# All portions of the code written by venera are Copyright (c) 2021-2022 venera
+# All portions of the code written by mozaku are Copyright (c) 2021-2022 mozaku
 # Inc. All Rights Reserved.
 ###############################################################################
 
-from warehouse.db.models import User as UserDB, UserFlags
+import random
+from typing import Optional
+
 from warehouse.db import hashpass, snowflake_factory, verifypass
+from warehouse.db.models import User as UserDB
 from warehouse.lib.errors import CommitError, UserAlreadyExists, UserDoesNotExist
 from warehouse.lib.users.authorization import create_token, verify_token
-from typing import Optional
 
 
 class User:
     def __init__(
         self,
+        version: int,
         id: Optional[int] = None,
         email: Optional[str] = None,
         password: Optional[str] = None,
         username: Optional[str] = None,
+        discriminator: Optional[str] = None,
         joined_at: Optional[str] = None,
-        avatar_url: Optional[str] = None,
-        banner_url: Optional[str] = None,
+        avatar: Optional[str] = None,
+        banner: Optional[str] = None,
         flags: Optional[int] = None,
         bio: Optional[str] = None,
         verified: bool = False,
         locale: Optional[str] = None,
-        display_name: Optional[str] = None
     ):
         self._exists: bool = id != None
 
@@ -50,17 +53,18 @@ class User:
         self._email = email
         self._password = password
         self._username = username
+        self._discriminator = discriminator
         self._joined_at = joined_at
-        self._avatar_url = avatar_url
-        self._banner_url = banner_url
+        self._avatar = avatar
+        self._banner = banner
         self._flags = flags
         self._bio = bio
         self._verified = verified
         self._locale = locale
-        self._display_name = display_name
+        self.version = version
 
     @classmethod
-    async def login(cls, email: str, password: str):
+    async def login(cls, email: str, password: str, version: int):
         try:
             db: UserDB = UserDB.objects(UserDB.email == email).get()
         except:
@@ -70,90 +74,93 @@ class User:
             return
 
         self = cls(
+            version=version,
             id=db.id,
             email=db.email,
             password=db.password,
             username=db.username,
+            discriminator=db.discriminator,
             joined_at=db.joined_at,
-            avatar_url=db.avatar_url,
-            banner_url=db.banner_url,
+            avatar=db.avatar,
+            banner=db.banner,
             flags=db.flags,
             bio=db.bio,
             verified=db.verified,
             locale=db.locale,
-            display_name=db.display_name
         )
         self._db = db
 
         return self
 
     @classmethod
-    def from_username(cls, username: str):
+    def from_username(cls, username: str, version: int):
         try:
             udb: UserDB = UserDB.objects(UserDB.username == username).get()
         except:
             raise UserDoesNotExist()
 
         self = cls(
+            version=version,
             id=udb.id,
             email=udb.email,
             password=udb.password,
             username=udb.username,
+            discriminator=udb.discriminator,
             joined_at=udb.joined_at,
-            avatar_url=udb.avatar_url,
-            banner_url=udb.banner_url,
+            avatar=udb.avatar,
+            banner=udb.banner,
             flags=udb.flags,
             bio=udb.bio,
             verified=udb.verified,
             locale=udb.locale,
-            display_name=udb.display_name
         )
         self._db = udb
 
         return self
 
     @classmethod
-    def from_id(cls, id: int):
+    def from_id(cls, id: int, version: int):
         try:
             udb: UserDB = UserDB.objects(UserDB.id == id).get()
         except:
             raise UserDoesNotExist()
 
         self = cls(
+            version=version,
             id=udb.id,
             email=udb.email,
             password=udb.password,
             username=udb.username,
             joined_at=udb.joined_at,
-            avatar_url=udb.avatar_url,
-            banner_url=udb.banner_url,
+            avatar=udb.avatar,
+            banner=udb.banner,
             flags=udb.flags,
             bio=udb.bio,
             verified=udb.verified,
             locale=udb.locale,
-            display_name=udb.display_name
         )
         self._db = udb
 
         return self
 
     @classmethod
-    def from_authorization(cls, token: str) -> "User":
+    def from_authorization(cls, token: str, version: int) -> "User":
         user = verify_token(token=token)
 
         self = cls(
+            version=version,
             id=user.id,
             email=user.email,
             password=user.password,
             username=user.username,
+            discriminator=user.discriminator,
             joined_at=user.joined_at,
-            avatar_url=user.avatar_url,
-            banner_url=user.banner_url,
+            avatar=user.avatar,
+            banner=user.banner,
             flags=user.flags,
             bio=user.bio,
             verified=user.verified,
             locale=user.locale,
-            display_name=user.display_name
         )
 
         self._db = user
@@ -161,7 +168,7 @@ class User:
         return self
 
     def create_token(self):
-        return create_token(self._id, self._password)  # type: ignore
+        return create_token(self._id)  # type: ignore
 
     async def commit(self):
         """
@@ -170,28 +177,21 @@ class User:
         if self._exists:
             raise CommitError('This user already exists.')
 
-        try:
-            UserDB.objects(UserDB.username == self._username).get()
-        except:
-            pass
-        else:
-            raise UserAlreadyExists()
-
         self._password = await hashpass(self._password)  # type: ignore
 
         udb: UserDB = UserDB.create(
             id=snowflake_factory.manufacture(),
             email=self._email,
             password=self._password,
+            discriminator=self._discriminator,
             username=self._username,
             joined_at=self._joined_at,
-            avatar_url=self._avatar_url,
-            banner_url=self._banner_url,
+            avatar=self._avatar,
+            banner=self._banner,
             flags=self._flags,
             bio=self._bio,
             verified=self._verified,
             locale=self._locale,
-            display_name=''
         )
 
         self._db = udb
@@ -201,11 +201,9 @@ class User:
     def commit_edit(
         self,
         email: Optional[str] = None,
+        password: Optional[str] = None,
         username: Optional[str] = None,
-        avatar_url: Optional[str] = None,
-        banner_url: Optional[str] = None,
         bio: Optional[str] = None,
-        display_name: Optional[str] = None
     ):
         d: dict[str, str] = {}
 
@@ -215,17 +213,11 @@ class User:
         if username:
             d['username'] = username
 
-        if avatar_url:
-            d['avatar_url'] = avatar_url
-
-        if banner_url:
-            d['banner_url'] = banner_url
-
         if bio:
             d['bio'] = bio
 
-        if display_name:
-            d['display_name'] = display_name
+        if password:
+            d['password'] = password
 
         self._db = self._db.update(**d)
 
@@ -237,26 +229,32 @@ class User:
 
         dict_return['id'] = str(self._id)
         dict_return['username'] = self._username
-        dict_return['display_name'] = self._display_name if self._display_name != None else ''
-        dict_return['avatar_url'] = self._avatar_url
-        dict_return['banner_url'] = self._banner_url
+        dict_return['discriminator'] = self._discriminator
+        dict_return['avatar'] = self._avatar
+        dict_return['banner'] = self._banner
         if not remove_email:
             dict_return['email'] = self._email
         dict_return['joined_at'] = self._joined_at
         dict_return['bio'] = self._bio
         dict_return['verified'] = self._verified
         dict_return['locale'] = self._locale
-        dict_return['badges'] = []
-
-        f = UserFlags(self._flags) # type: ignore
-
-        if f.bug_hunter:
-            dict_return['badges'].append('Bug Hunter')
-        if f.early_supporter:
-            dict_return['badges'].append('Early Supporter')
-        if f.staff:
-            dict_return['badges'].append('Staff')
-        if f.verified:
-            dict_return['badges'].append('Verified Guild Owner')
+        dict_return['flags'] = self._flags
+        dict_return['_version'] = self.version
 
         return dict_return
+
+    @classmethod
+    def gendiscrim(self, username: str):
+        discriminator: str | None = None
+
+        for _ in range(600):
+            try:
+                discriminator: str | None = '%04d' % random.randint(0, 9999)
+                User.user_exists(username, discriminator)
+            except:
+                pass
+
+        if not discriminator:
+            raise UserAlreadyExists()
+
+        return discriminator

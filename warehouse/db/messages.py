@@ -20,19 +20,51 @@
 # All portions of the code written by mozaku are Copyright (c) 2021-2022 mozaku
 # Inc. All Rights Reserved.
 ###############################################################################
+import os
 
-from typing import Optional
-
-from pydantic import BaseModel, Field
-
-
-class CreateGuild(BaseModel):
-    name: str = Field(min_length=1, max_length=21)
-    nsfw: bool = Field(default=False)
-    description: str = Field(default='', max_length=400)
+import aiokafka
+import aiokafka.helpers
+import orjson
 
 
-class EditGuild(BaseModel):
-    name: Optional[str] = Field(min_length=1, max_length=21)
-    nsfw: Optional[bool]
-    description: Optional[str]
+async def enable_production():
+    global producer
+    producer = aiokafka.AIOKafkaProducer(
+        ssl_context=aiokafka.helpers.create_default_context(),
+        value_serializer=orjson.dumps,
+        bootstrap_servers=os.getenv('KAFKA_URL'),
+        security_protocol='SASL_SSL',
+        sasl_mechanism='PLAIN',
+        sasl_plain_username=os.getenv('KAFKA_USERNAME'),
+        sasl_plain_password=os.getenv('KAFKA_PASSWORD'),
+    )
+    await producer.start()
+
+
+async def send_message(topic: str, message: dict, key: str = None):
+    # NOTE: the key might be the guild, channel or user which caused the event.
+
+    if key:
+        key = bytes(key)
+
+    await producer.send(topic, message, key=key)
+
+
+async def send_messages(topic: str, messages: list[dict], key: str = None):
+    for message in messages:
+        await send_message(topic=topic, message=message, key=key)
+
+
+if __name__ == '__main__':
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    async def test_message():
+        await enable_production()
+
+        await send_message('guild_messages', {'hello': 'world'})
+
+    import asyncio
+
+    asyncio.run(test_message())

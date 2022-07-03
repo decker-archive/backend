@@ -2,7 +2,7 @@
 # The contents of this file are subject to the Common Public Attribution
 # License Version 1.0. (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
-# http://veneralab.com/assets/license. The License is based on the Mozilla Public
+# http://mozaku.com/assets/license. The License is based on the Mozilla Public
 # License Version 1.1, but Sections 14 and 15 have been added to cover use of
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
@@ -12,17 +12,19 @@
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
 #
-# The Original Code is venera.
+# The Original Code is mozaku.
 #
 # The Original Developer is the Initial Developer.  The Initial Developer of
-# the Original Code is venera Inc.
+# the Original Code is Mozaku.
 #
-# All portions of the code written by venera are Copyright (c) 2021-2022 venera
+# All portions of the code written by mozaku are Copyright (c) 2021-2022 mozaku
 # Inc. All Rights Reserved.
 ###############################################################################
 
+from typing import Optional
+
 from warehouse.db import Guild as GuildDB
-from warehouse.db import GuildFeature, GuildMember, get_date, snowflake_factory, BANNED_NAMES
+from warehouse.db import GuildFeature, GuildMember, get_date, snowflake_factory
 from warehouse.lib.errors import (
     AlreadyMember,
     GuildAlreadyExists,
@@ -31,39 +33,35 @@ from warehouse.lib.errors import (
     NotAMember,
 )
 from warehouse.lib.users import User
-from typing import Optional
 
 
 class Guild:
     def __init__(
         self,
+        version: int,
         id: Optional[int] = None,
         name: Optional[str] = None,
-        display_name: Optional[str] = '',
         description: Optional[str] = '',
-        icon_url: Optional[str] = '',
-        banner_url: Optional[str] = '',
+        icon: Optional[str] = '',
+        banner: Optional[str] = '',
         owner_id: Optional[int | User] = None,
         nsfw: bool = False,
-        verified: Optional[bool] = None,
+        verified: Optional[bool] = False,
         permissions: int = 0,
-        archived: bool = False
-
     ):
         self.exists = id != None
 
         self._id = id
         self._name = name
-        self._display_name = display_name
         self._description = description
-        self._icon_url = icon_url
-        self._banner_url = banner_url
+        self._icon = icon
+        self._banner = banner
         self._nsfw = nsfw
         self._verified = verified
         self._permissions = permissions
-        self._archived = archived
         self._owner = User.from_id(owner_id) if isinstance(owner_id, int) else owner_id
         self._features = []
+        self.version = version
 
         if self.exists:
             iterg: list[GuildFeature] = GuildFeature.objects(
@@ -79,24 +77,23 @@ class Guild:
         )
 
     @classmethod
-    def from_name(cls, name: str):
+    def from_id(cls, id: int, version: int):
         try:
-            gdb: GuildDB = GuildDB.objects(GuildDB.name == name).get()
+            gdb: GuildDB = GuildDB.objects(GuildDB.id == id).get()
         except:
             raise GuildDoesNotExist()
 
         self = cls(
+            version=version,
             id=gdb.id,
             name=gdb.name,
-            display_name=gdb.display_name,
             description=gdb.description,
-            icon_url=gdb.icon_url,
-            banner_url=gdb.banner_url,
+            icon=gdb.icon,
+            banner=gdb.banner,
             nsfw=gdb.nsfw,
             verified=gdb.verified,
-            owner_id=gdb.owner_id, # type: ignore
-            archived=gdb.archived,
-            permissions=gdb.permissions
+            owner_id=gdb.owner_id,  # type: ignore
+            permissions=gdb.permissions,
         )
         self._db = gdb
 
@@ -107,19 +104,14 @@ class Guild:
 
         ret['id'] = str(self._id)
         ret['name'] = self._name
-        ret['display_name'] = self._display_name
         ret['description'] = self._description
-        ret['icon_url'] = self._icon_url
-        ret['banner_url'] = self._banner_url
+        ret['icon'] = self._icon
+        ret['banner'] = self._banner
         ret['nsfw'] = self._nsfw
         ret['verified'] = self._verified
-        ret['owner'] = self._owner.for_transmission() # type: ignore
+        ret['owner'] = self._owner.for_transmission()  # type: ignore
         ret['features'] = self._features
-
-        if self._archived is None:
-            ret['archived'] = False
-        else:
-            ret['archived'] = self._archived
+        ret['_version'] = self.version
 
         if self._permissions is None:
             ret['permissions'] = 0
@@ -136,9 +128,6 @@ class Guild:
         if self.exists:
             raise GuildAlreadyExists()
 
-        if self._name in BANNED_NAMES:
-            raise GuildAlreadyExists()
-
         try:
             GuildDB.objects(GuildDB.name == self._name).get()
         except:
@@ -149,28 +138,26 @@ class Guild:
         self._db: GuildDB = GuildDB.create(
             id=snowflake_factory.manufacture(),
             name=self._name,
-            display_name=self._display_name,
             description=self._description,
-            icon_url=self._icon_url,
-            banner_url=self._banner_url,
+            icon=self._icon,
+            banner=self._banner,
             nsfw=self._nsfw,
             verified=self._verified,
-            owner_id=self._owner._id, # type: ignore
+            owner_id=self._owner._id,  # type: ignore
             permissions=self._permissions,
-            archived=self._archived
         )
 
     def edit(
         self,
-        display_name: Optional[str] = None,
+        name: Optional[str] = None,
         nsfw: Optional[bool] = None,
         description: Optional[str] = None,
     ):
         e = {}
 
-        if display_name:
-            self._display_name = display_name
-            e['display_name'] = display_name
+        if name:
+            self._name = name
+            e['name'] = name
 
         if nsfw is not None:
             self._nsfw = nsfw
@@ -204,7 +191,9 @@ class Guild:
             joined_at=get_date(),
             nick='',
             owner=False,
-            mod=False,
+            mute=False,
+            deaf=False,
+            pending=False,
         )
 
     def remove_member(self, user: User):

@@ -2,7 +2,7 @@
 # The contents of this file are subject to the Common Public Attribution
 # License Version 1.0. (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
-# http://veneralab.com/assets/license. The License is based on the Mozilla Public
+# http://mozaku.com/assets/license. The License is based on the Mozilla Public
 # License Version 1.1, but Sections 14 and 15 have been added to cover use of
 # software over a computer network and provide for limited attribution for the
 # Original Developer. In addition, Exhibit A has been modified to be consistent
@@ -12,17 +12,18 @@
 # WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 # the specific language governing rights and limitations under the License.
 #
-# The Original Code is venera.
+# The Original Code is mozaku.
 #
 # The Original Developer is the Initial Developer.  The Initial Developer of
-# the Original Code is venera Inc.
+# the Original Code is Mozaku.
 #
-# All portions of the code written by venera are Copyright (c) 2021-2022 venera
+# All portions of the code written by mozaku are Copyright (c) 2021-2022 mozaku
 # Inc. All Rights Reserved.
 ###############################################################################
 
-from fastapi import Cookie, APIRouter
+from fastapi import APIRouter, Header
 
+from warehouse.db.utils import validate_version
 from warehouse.lib.errors import AuthenticationError
 from warehouse.lib.guilds.basic import Guild
 from warehouse.lib.payloads import CreateGuild, EditGuild
@@ -30,14 +31,19 @@ from warehouse.lib.users.basic import User
 
 guilds = APIRouter()
 
-@guilds.post('/api/guilds')
+
+@guilds.post('/v{version}/guilds')
 async def create_guild(
+    version: str,
     payload: CreateGuild,
-    venera_authorization: str = Cookie(default=None),
+    authorization: str = Header(),
 ):
-    owner = User.from_authorization(venera_authorization)
+    validate_version(version=version)
+
+    owner = User.from_authorization(authorization, int(version))
 
     g = Guild(
+        int(version),
         name=payload.name,
         description=payload.description,
         owner_id=owner,
@@ -46,24 +52,31 @@ async def create_guild(
 
     g.commit()
 
-@guilds.patch('/api/g/{guild_name}')
+    return g.for_transmission()
+
+
+@guilds.patch('/v{version}/guilds/{guild_id}')
 async def edit_guild(
-    guild_name: str,
+    version: str,
+    guild_id: int,
     payload: EditGuild,
-    venera_authorization: str = Cookie(default=None),
+    authorization: str = Header()
 ):
-    user = User.from_authorization(venera_authorization)
-    guild = Guild.from_name(guild_name)
+    validate_version(version=version)
+
+    user = User.from_authorization(authorization, int(version))
+    guild = Guild.from_id(guild_id, version=version)
 
     member = guild.get_member(user)
 
-    if not member.mod and not member.owner:
+    # TODO: Permission handling
+    if not member.owner:
         raise AuthenticationError()
 
     d = {}
 
-    if payload.display_name:
-        d['display_name'] = payload.display_name
+    if payload.name:
+        d['name'] = payload.name
 
     if payload.nsfw:
         d['nsfw'] = payload.nsfw
@@ -75,10 +88,14 @@ async def edit_guild(
 
     return guild.for_transmission()
 
-@guilds.get('/api/g/{guild_name}')
-async def get_guild(
-    guild_name: str
-):
-    guild = Guild.from_name(guild_name)
+
+@guilds.get('/v{version}/guilds/{guild_id}')
+async def get_guild(version: str, guild_id: int, authorization: str = Header()):
+    validate_version(version=version)
+    user = User.from_authorization(authorization, version=version)
+
+    guild = Guild.from_id(guild_id, int(version))
+
+    guild.get_member(user)
 
     return guild.for_transmission()

@@ -1,6 +1,6 @@
 # Warehouse
 
-Warehouse is the backend api for venera.
+Warehouse is the backend api for mozaku.
 
 ## Before doing anything
 
@@ -13,7 +13,7 @@ Once done with those steps, please run migrations and table creations by running
 
 All you need to do to start the server is run either `./scripts/dev.bat` (for windows) or `./scripts/dev.sh` (for macOS or linux.)
 
-Once done, you can access that server via ``https://cloud.veneralab.com:5000``.
+Once done, you can access that server via ``https://cloud.mozaku.com:5000``.
 
 ## Production
 
