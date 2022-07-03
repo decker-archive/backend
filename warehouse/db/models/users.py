@@ -39,6 +39,7 @@ class User(models.Model):
     verified: bool = columns.Boolean()
     locale: str = columns.Text()
 
+
 class Token(models.Model):
     __table_name__ = 'tokens'
     id: str = columns.Text(primary_key=True)

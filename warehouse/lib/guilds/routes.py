@@ -57,10 +57,7 @@ async def create_guild(
 
 @guilds.patch('/v{version}/guilds/{guild_id}')
 async def edit_guild(
-    version: str,
-    guild_id: int,
-    payload: EditGuild,
-    authorization: str = Header()
+    version: str, guild_id: int, payload: EditGuild, authorization: str = Header()
 ):
     validate_version(version=version)
 

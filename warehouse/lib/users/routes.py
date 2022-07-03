@@ -83,9 +83,7 @@ async def login(
 
 
 @users.patch('/v{version}/users/@me')
-def edit_user(
-    version: str, payload: EditUser, authorization: str = Header()
-):
+def edit_user(version: str, payload: EditUser, authorization: str = Header()):
     validate_version(version=version)
 
     user = User.from_authorization(token=authorization, version=int(version))

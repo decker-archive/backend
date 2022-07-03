@@ -28,25 +28,22 @@ from warehouse.db.utils import get_date
 from warehouse.lib.errors import AuthenticationError
 
 
-def create_token(user_id: int) -> str:
+def create_token(user_id: int) -> Token:
     token = str(uuid4())
 
-    Token.create(
-        id=token,
-        user_id=user_id,
-        created_at=get_date()
-    )
+    Token.create(id=id, user_id=user_id, created_at=get_date())
 
     return token
 
 
 def verify_token(token: str):
     try:
-        token = Token.get(Token.id==token)
+        tk: Token = Token.get(Token.id == token)
     except:
         raise AuthenticationError()
     else:
-        return token
+        return tk
+
 
 if __name__ == '__main__':
     print(create_token())

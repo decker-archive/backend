@@ -145,25 +145,9 @@ class User:
 
     @classmethod
     def from_authorization(cls, token: str, version: int) -> "User":
-        user = verify_token(token=token)
+        tokeninfo = verify_token(token=token)
 
-        self = cls(
-            version=version,
-            id=user.id,
-            email=user.email,
-            password=user.password,
-            username=user.username,
-            discriminator=user.discriminator,
-            joined_at=user.joined_at,
-            avatar=user.avatar,
-            banner=user.banner,
-            flags=user.flags,
-            bio=user.bio,
-            verified=user.verified,
-            locale=user.locale,
-        )
-
-        self._db = user
+        self = cls.from_id(tokeninfo.id, version=version)
 
         return self
 
