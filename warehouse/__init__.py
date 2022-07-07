@@ -1,8 +1,8 @@
 """
 warehouse
 ~~~~~~~~~
-Warehouse is the backend API for Mozaku.
+Warehouse is the backend API for Venera.
 
 :license: CPAL-1.0
-:copyight: 2021-2022 Mozaku. All Rights Reserved.
+:copyight: 2021-2022 Venera. All Rights Reserved.
 """
