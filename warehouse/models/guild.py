@@ -33,9 +33,10 @@ from warehouse.lib.errors import (
     NotAMember,
 )
 from warehouse.lib.users import User
+from warehouse.models import Thing
 
 
-class Guild:
+class Guild(Thing):
     def __init__(
         self,
         version: int,
@@ -49,7 +50,7 @@ class Guild:
         verified: Optional[bool] = False,
         permissions: int = 0,
     ):
-        self.exists = id != None
+        self._exists = id != None
 
         self._id = id
         self._name = name
@@ -63,7 +64,7 @@ class Guild:
         self._features = []
         self.version = version
 
-        if self.exists:
+        if self._exists:
             iterg: list[GuildFeature] = GuildFeature.objects(
                 GuildFeature.guild_id == self._id
             ).all()

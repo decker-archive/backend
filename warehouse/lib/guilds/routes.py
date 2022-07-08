@@ -25,9 +25,9 @@ from fastapi import APIRouter, Header
 
 from warehouse.db.utils import validate_version
 from warehouse.lib.errors import AuthenticationError
-from warehouse.lib.guilds.basic import Guild
+from warehouse.models.basic import Guild
 from warehouse.lib.payloads import CreateGuild, EditGuild
-from warehouse.lib.users.basic import User
+from warehouse.models.basic import User
 
 guilds = APIRouter()
 

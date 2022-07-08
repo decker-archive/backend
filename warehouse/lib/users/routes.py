@@ -28,7 +28,7 @@ from fastapi import APIRouter, Header
 from warehouse.db import get_date, hashpass, validate_version
 from warehouse.lib.errors import AlreadyLoggedin, InvalidCredentials
 from warehouse.lib.payloads import CreateUser, EditUser
-from warehouse.lib.users.basic import User
+from warehouse.models.basic import User
 
 users = APIRouter()
 
