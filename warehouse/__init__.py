@@ -1,8 +1,8 @@
 """
 warehouse
 ~~~~~~~~~
-Warehouse is the backend API for Venera.
+Warehouse is the backend API for Plufify.
 
 :license: CPAL-1.0
-:copyight: 2021-2022 Venera. All Rights Reserved.
+:copyight: 2021-2022 Plufify. All Rights Reserved.
 """

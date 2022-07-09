@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "warehouse"
 version = "0.0.0"
-description = "Warehouse is the backend api for venera."
+description = "Warehouse is the backend api for plufify."
 authors = ["VincentRPS"]
 
 [tool.isort]
