@@ -1,8 +1,8 @@
 """
 warehouse
 ~~~~~~~~~
-Warehouse is the backend API for Plufify.
+Warehouse is the backend API for Onamii.
 
 :license: CPAL-1.0
-:copyight: 2021-2022 Plufify. All Rights Reserved.
+:copyight: 2021-2022 Onamii. All Rights Reserved.
 """

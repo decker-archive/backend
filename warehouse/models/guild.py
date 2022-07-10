@@ -15,7 +15,7 @@
 # The Original Code is plufify.
 #
 # The Original Developer is the Initial Developer.  The Initial Developer of
-# the Original Code is Plufify.
+# the Original Code is Onamii.
 #
 # All portions of the code written by plufify are Copyright (c) 2021-2022 plufify
 # Inc. All Rights Reserved.
