@@ -2,7 +2,7 @@
 
 # Warehouse
 
-Warehouse is the backend api for plufify.
+Warehouse is the backend api for onamii.
 
 ## Before doing anything
 
@@ -15,7 +15,7 @@ Once done with those steps, please run migrations and table creations by running
 
 All you need to do to start the server is run either `./scripts/dev.bat` (for windows) or `./scripts/dev.sh` (for macOS or linux.)
 
-Once done, you can access that server via ``https://cloud.plufify.com:5000``.
+Once done, you can access that server via ``https://cloud.onamii.com:5000``.
 
 ## Production
 
