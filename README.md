@@ -1,21 +1,18 @@
-![](./media/pluf.png)
-
-# Warehouse
-
-Warehouse is the backend api for onamii.
+# Polynode
+Polymetric Derailed Nodes for Production. 
 
 ## Before doing anything
 
 Before starting in development or production mode, please remember to fill your information in a `.env` via `.env.example`.
 If you have a security bundle for cassandra, you can put it in `/private/cass-bundle.zip`.
 
-Once done with those steps, please run migrations and table creations by running `warehouse/db/database.py`.
+Once done with those steps, please run migrations and table creations by running `/petabyte`.
 
 ## Development
 
 All you need to do to start the server is run either `./scripts/dev.bat` (for windows) or `./scripts/dev.sh` (for macOS or linux.)
 
-Once done, you can access that server via ``https://cloud.onamii.com:5000``.
+Once done, you can access that server via ``https://self.derailedapp.com:5000``.
 
 ## Production
 
