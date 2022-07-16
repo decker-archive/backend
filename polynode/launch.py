@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. 
 """
+import threading
 from uuid import uuid4
 from flask import Response
 
@@ -39,5 +40,6 @@ def method_invalid(_):
 @app.after_request
 def after_request(resp: Response):
     resp.headers['x-track-id'] = hex(uuid4().int)
+    resp.headers['x-poly-node'] = hex(threading.get_ident())
 
     return resp
