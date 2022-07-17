@@ -1,5 +1,5 @@
 """
-Polynode - Production Grade node for Derailed
+Petabyte - Production-grade Database tools and models for Polynode
 Copyright (C) 2022 Derailed.
 """
 from typing import Any

@@ -1,13 +1,16 @@
 """
-Polynode - Production Grade node for Derailed
+Petabyte - Production-grade Database tools and models for Polynode
 Copyright (C) 2022 Derailed.
 """
+from typing import Any
+
 from cassandra.cqlengine import columns, models
 
 from polynode.utils import transform_ids
 
 
 class Message(models.Model):
+    __table_name__ = 'messages'
     id: int = columns.BigInt(primary_key=True)
     channel_id: int = columns.BigInt(primary_key=True)
     bucket_id: int = columns.Integer(primary_key=True)
@@ -19,6 +22,7 @@ class Message(models.Model):
 
 
 class Attachment(models.Model):
+    __table_name__ = 'attachments'
     id: int = columns.BigInt(primary_key=True)
     filename: str = columns.Text()
     description: str = columns.Text()
@@ -32,6 +36,7 @@ class Attachment(models.Model):
 
 
 class Embed(models.Model):
+    __table_name__ = 'embeds'
     message_id: int = columns.BigInt(primary_key=True)
     embed_id: int = columns.BigInt()
     title: str = columns.Text()
@@ -43,12 +48,14 @@ class Embed(models.Model):
 
 
 class EmbedProvider(models.Model):
+    __table_name__ = 'embed_providers'
     embed_id: int = columns.BigInt(primary_key=True)
     name: str = columns.Text()
     url: str = columns.Text()
 
 
 class EmbedFooter(models.Model):
+    __table_name__ = 'embed_footers'
     embed_id: int = columns.BigInt(primary_key=True)
     text: str = columns.Text()
     icon_url: str = columns.Text()
@@ -56,6 +63,7 @@ class EmbedFooter(models.Model):
 
 
 class EmbedField(models.Model):
+    __table_name__ = 'embed_fields'
     embed_id: int = columns.BigInt(primary_key=True)
     name: str = columns.Text()
     value: str = columns.Text()
@@ -63,6 +71,7 @@ class EmbedField(models.Model):
 
 
 class EmbedAuthor(models.Model):
+    __table_name__ = 'embed_author'
     embed_id: int = columns.BigInt(primary_key=True)
     name: str = columns.Text()
     url: str = columns.Text()
@@ -71,6 +80,7 @@ class EmbedAuthor(models.Model):
 
 
 class EmbedImage(models.Model):
+    __table_name__ = 'embed_images'
     embed_id: int = columns.BigInt(primary_key=True)
     url: str = columns.Text()
     proxy_url: str = columns.Text()
@@ -79,6 +89,7 @@ class EmbedImage(models.Model):
 
 
 class EmbedVideo(models.Model):
+    __table_name__ = 'embed_videos'
     embed_id: int = columns.BigInt(primary_key=True)
     url: str = columns.Text()
     proxy_url: str = columns.Text()
@@ -87,6 +98,7 @@ class EmbedVideo(models.Model):
 
 
 class EmbedThumbnail(models.Model):
+    __table_name__ = 'embed_thumbnails'
     embed_id: int = columns.BigInt(primary_key=True)
     url: str = columns.Text()
     proxy_url: str = columns.Text()
@@ -95,22 +107,26 @@ class EmbedThumbnail(models.Model):
 
 
 class Reaction(models.Model):
+    __table_name__ = 'reactions'
     message_id: int = columns.BigInt(primary_key=True)
     user_id: int = columns.BigInt()
     emoji_id: int = columns.BigInt()
 
 
 class UserMention(models.Model):
+    __table_name__ = 'user_mentions'
     message_id: int = columns.BigInt(primary_key=True)
     user_id: int = columns.BigInt()
 
 
 class RoleMention(models.Model):
+    __table_name__ = 'role_mentions'
     message_id: int = columns.BigInt(primary_key=True)
     role_id: int = columns.BigInt()
 
 
 class ChannelMention(models.Model):
+    __table_name__ = 'channel_mentions'
     message_id: int = columns.BigInt(primary_key=True)
     id: int = columns.BigInt()
     guild_id: int = columns.BigInt()
@@ -130,12 +146,44 @@ def transform_embed_fields(embed: Embed):
     return ret
 
 
+def get_mentions(message: Message):
+    user_mentions = UserMention.objects(UserMention.message_id == message.id).all()
+    role_mentions = RoleMention.objects(RoleMention.message_id == message.id).all()
+    channel_mentions = ChannelMention.objects(
+        ChannelMention.message_id == message.id
+    ).all()
+
+    ret: dict[str, list[dict[str, Any]]] = {}
+    ret['users'] = []
+    ret['roles'] = []
+    ret['channels'] = []
+
+    for mention in user_mentions:
+        mention = dict(mention)
+        mention.pop('message_id')
+        ret['users'].append(mention)
+
+    for mention in role_mentions:
+        mention = dict(mention)
+        mention.pop('message_id')
+        ret['roles'].append(mention)
+
+    for mention in channel_mentions:
+        mention = dict(mention)
+        mention.pop('message_id')
+        ret['channels'].append(mention)
+
+    return ret
+
+
 def transform_message(message: Message):
     dict = message.__dict__
     transform_ids(dict=dict)
 
     embeds: list[Embed] = Embed.objects(Embed.message_id == message.id).all()
     ems = []
+    mentions = get_mentions(message=message)
+    dict['mentions'] = mentions
 
     for embed in embeds:
         try:

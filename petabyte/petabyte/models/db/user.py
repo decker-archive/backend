@@ -1,5 +1,5 @@
 """
-Polynode - Production Grade node for Derailed
+Petabyte - Production-grade Database tools and models for Polynode
 Copyright (C) 2022 Derailed.
 """
 from cassandra.cqlengine import columns, models
@@ -17,7 +17,19 @@ class User(models.Model):
     banner: str = columns.Text()
     flags: int = columns.Integer()
     bio: str = columns.Text()
-    verified: bool = columns.Boolean()
+    bot: bool = columns.Boolean()
+
+
+# NOTE: This is something like a bot
+class Application(models.Model):
+    id: int = columns.BigInt(primary_key=True)
+    name: str = columns.Text()
+    icon: str = columns.Text()
+    description: str = columns.Text()
+    public: bool = columns.Boolean()
+    owner_id: int = columns.BigInt(index=True)
+    team_id: int = columns.BigInt(index=True)
+    token: str = columns.Text()
 
 
 class GuildPosition(models.Model):

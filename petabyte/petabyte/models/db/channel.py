@@ -1,5 +1,5 @@
 """
-Polynode - Production Grade node for Derailed
+Petabyte - Production-grade Database tools and models for Polynode
 Copyright (C) 2022 Derailed.
 """
 from cassandra.cqlengine import columns, models
@@ -46,6 +46,15 @@ def transform_channel(channel: Channel):
     dict = channel.__dict__
     dict.pop('guild_id')
     transform_ids(dict=dict)
+
+    if dict['type'] in (0, 2, 4, 5, 6, 7, 8):
+        perm_overwrites = PermissionOverwrite.objects(
+            PermissionOverwrite.channel_id == channel.id
+        ).all()
+        dict['overwrites']: list[PermissionOverwrite] = []
+
+        for overwrite in perm_overwrites:
+            dict['overwrites'].append(overwrite)
 
     if dict['type'] in (0, 1, 2, 3, 4, 5, 6, 7, 8):
         for value in ('member_count', 'application_id', 'icon', 'owner_id'):
