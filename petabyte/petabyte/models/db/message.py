@@ -19,6 +19,9 @@ class Message(models.Model):
     timestamp: str = columns.DateTime()
     edited_timestamp: str = columns.DateTime()
     mention_everyone: bool = columns.Boolean()
+    pinned: bool = columns.Boolean()
+    referenced_message_id = columns.BigInt()
+    thread_id: int = columns.BigInt()
 
 
 class Attachment(models.Model):
@@ -184,6 +187,17 @@ def transform_message(message: Message):
     ems = []
     mentions = get_mentions(message=message)
     dict['mentions'] = mentions
+
+    reactions: list[Reaction] = Reaction.objects(
+        Reaction.message_id == message.id
+    ).limit(70000)
+    dict['reactions'] = []
+
+    for reaction in reactions:
+        # TODO: change emoji_id to a partial Emoji object.
+        d = dict(reaction)
+        d.pop('message_id')
+        dict['reactions'].append(d)
 
     for embed in embeds:
         try:
