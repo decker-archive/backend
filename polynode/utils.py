@@ -10,4 +10,3 @@ def transform_ids(dict: dict[str, Any]):
     for key, value in dict.values():
         if 'id' in key and not isinstance(value, str):
             dict[key] = str(value)
-

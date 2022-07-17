@@ -6,7 +6,7 @@ Polymetric Derailed Tracks for Production.
 Before starting in development or production mode, please remember to fill your information in a `.env` via `.env.example`.
 If you have a security bundle for cassandra, you can put it in `/private/cass-bundle.zip`.
 
-Once done with those steps, please run migrations and table creations by running `/petabyte`.
+Once done with those steps, please run migrations and table creations by running `/petabyte/connector.py`.
 
 ## Development
 

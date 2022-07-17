@@ -2,20 +2,43 @@
 Polynode - Production Grade node for Derailed
 Copyright (C) 2022 Derailed.
 """
-import secrets
-from cassandra.cqlengine import models
-from typing import Type
+import os
+import threading
+import time
 
 
-class IDGenerator:
-    def generate(self, cls: Type[models.Model]):
-        id = secrets.token_urlsafe(11).lower()
+class SnowflakeFactory:
+    def __init__(self) -> None:
+        self._epoch: int = 1641042000000
+        self._incrementation = 0
 
-        try:
-            cls.objects(
-                cls.id == id
-            ).get()
-        except:
-            pass
-        else:
-            return self.generate(cls=cls)
+    def forge(self) -> int:
+        current_ms = int(time.time() * 1000)
+        epoch = current_ms - self._epoch << 22
+
+        curthread = threading.current_thread().ident
+        assert (
+            curthread is not None
+        )  # NOTE: done for typing purposes, shouldn't ever actually be None.
+
+        epoch |= (curthread % 32) << 17
+        epoch |= (os.getpid() % 32) << 12
+
+        epoch |= self._incrementation % 4096
+
+        if self._incrementation == 9000000:
+            self._incrementation = 0
+
+        self._incrementation += 1
+
+        return epoch
+
+
+snowstorm = SnowflakeFactory()
+
+
+if __name__ == '__main__':
+    while True:
+        import sys
+
+        print(snowstorm.forge(), file=sys.stderr)

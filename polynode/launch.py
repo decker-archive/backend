@@ -4,6 +4,7 @@ Copyright (C) 2022 Derailed.
 """
 import threading
 from uuid import uuid4
+
 from flask import Response
 
 from polynode.app import app, limiter
@@ -23,9 +24,13 @@ def not_found(_):
 def method_invalid(_):
     return {'code': 2, 'message': '405: Method Not Allowed'}
 
+
 @app.errorhandler(429)
 async def rate_limit(_):
-    return {'message': 'You are being rate limited', 'retry_after': limiter.current_limit.remaining}
+    return {
+        'code': 3,
+        'message': '429: Too Many Requests',
+    }
 
 
 @app.after_request

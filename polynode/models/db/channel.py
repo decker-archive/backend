@@ -3,8 +3,8 @@ Polynode - Production Grade node for Derailed
 Copyright (C) 2022 Derailed.
 """
 from cassandra.cqlengine import columns, models
-from polynode.utils import transform_ids
 
+from polynode.utils import transform_ids
 
 CHANNEL_TYPES = {
     0: 'GUILD_TEXT_CHANNEL',
@@ -15,12 +15,12 @@ CHANNEL_TYPES = {
     5: 'GUILD_PUBLIC_THREAD',
     6: 'GUILD_PRIVATE_THREAD',
     7: 'GUILD_STAGE',
-    8: 'GUILD_FORUM'
+    8: 'GUILD_FORUM',
 }
 
 
 class Channel(models.Model):
-    id: str = columns.Text(primary_key=True)
+    id: int = columns.BigInt(primary_key=True)
     guild_id: int = columns.BigInt()
     type: int = columns.Integer()
     position: int = columns.Integer()
@@ -37,8 +37,6 @@ class Channel(models.Model):
     parent_id: int = columns.BigInt(index=True)
     last_pin_timestamp: str = columns.DateTime()
     voice_region: str = columns.Text()
-    message_count: int = columns.Integer()
-    member_count: int = columns.Integer()
     auto_archive_duration: int = columns.Integer()
     permissions: str = columns.Text()
     flags: int = columns.Integer()
@@ -58,18 +56,24 @@ def transform_channel(channel: Channel):
             dict.pop(value)
 
     if dict['type'] in (1, 3):
-        for value in ('position', 'nsfw', 'permissions', 'auto_archive_duration', 'guild_id'):
+        for value in (
+            'position',
+            'nsfw',
+            'permissions',
+            'auto_archive_duration',
+            'guild_id',
+        ):
             dict.pop(value)
 
     if dict['type'] not in (5, 6):
-        for value in ('auto_archive_duration'):
+        for value in 'auto_archive_duration':
             dict.pop(value)
 
     return dict
 
 
 class PermissionOverwrite(models.Model):
-    channel_id: str = columns.Text(primary_key=True)
+    channel_id: int = columns.BigInt(primary_key=True)
     id: str = columns.Text()
     allow: str = columns.Text()
     deny: str = columns.Text()

@@ -18,6 +18,7 @@ def get_key():
 
     return flask_limiter.util.get_remote_address()
 
+
 limiter = flask_limiter.Limiter(
     headers_enabled=True,
     default_limits=['50/second'],

@@ -23,7 +23,7 @@ class User(models.Model):
 class GuildPosition(models.Model):
     user_id: int = columns.BigInt(primary_key=True)
     guild_id: int = columns.BigInt()
-    group: str = columns.Text()
+    group_id: int = columns.BigInt()
     square: int = columns.Integer()
 
 
