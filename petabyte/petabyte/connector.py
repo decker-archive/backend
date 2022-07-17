@@ -27,7 +27,7 @@ def connect():
         if os.getenv('SAFE', 'true') == 'true':
             connection.setup(
                 None,
-                'warehouse',
+                'petabyte',
                 cloud=cloud,
                 auth_provider=auth_provider,
                 connect_timeout=100,
@@ -36,7 +36,7 @@ def connect():
         else:
             connection.setup(
                 None,
-                'warehouse',
+                'petabyte',
                 connect_timeout=100,
                 retry_connect=True,
                 compression=False,
