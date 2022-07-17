@@ -24,7 +24,7 @@ auth_provider = PlainTextAuthProvider(
 
 def connect():
     try:
-        if os.getenv('SAFE', 'true') == 'true':
+        if os.getenv('SAFE', 'true') == 'false':
             connection.setup(
                 None,
                 'petabyte',
