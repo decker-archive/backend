@@ -22,6 +22,7 @@ class User(models.Model):
 
 # NOTE: This is something like a bot
 class Application(models.Model):
+    __table_name__ = 'applications'
     id: int = columns.BigInt(primary_key=True)
     name: str = columns.Text()
     icon: str = columns.Text()
@@ -33,6 +34,7 @@ class Application(models.Model):
 
 
 class GuildPosition(models.Model):
+    __table_name__ = 'guild_positions'
     user_id: int = columns.BigInt(primary_key=True)
     guild_id: int = columns.BigInt()
     group_id: int = columns.BigInt()
@@ -40,6 +42,7 @@ class GuildPosition(models.Model):
 
 
 class UserSettings(models.Model):
+    __table_name__ = 'user_settings'
     user_id: int = columns.Integer(primary_key=True)
     locale: str = columns.Text()
     developer_mode: bool = columns.Boolean()

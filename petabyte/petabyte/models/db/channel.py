@@ -20,6 +20,7 @@ CHANNEL_TYPES = {
 
 
 class Channel(models.Model):
+    __table_name__ = 'channels'
     id: int = columns.BigInt(primary_key=True)
     guild_id: int = columns.BigInt()
     type: int = columns.Integer()
@@ -40,6 +41,14 @@ class Channel(models.Model):
     auto_archive_duration: int = columns.Integer()
     permissions: str = columns.Text()
     flags: int = columns.Integer()
+
+
+class PermissionOverwrite(models.Model):
+    __table_name__ = 'permission_overwrites'
+    channel_id: int = columns.BigInt(primary_key=True)
+    id: str = columns.Text()
+    allow: str = columns.Text()
+    deny: str = columns.Text()
 
 
 def transform_channel(channel: Channel):
@@ -79,10 +88,3 @@ def transform_channel(channel: Channel):
             dict.pop(value)
 
     return dict
-
-
-class PermissionOverwrite(models.Model):
-    channel_id: int = columns.BigInt(primary_key=True)
-    id: str = columns.Text()
-    allow: str = columns.Text()
-    deny: str = columns.Text()
