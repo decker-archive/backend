@@ -1,5 +1,8 @@
 """
 Polynode - Production Grade node for Derailed
+
+:copyright: 2021-2022 Derailed.
+:license: LGPL-3.0
 """
 import flask_limiter
 import flask_limiter.util

@@ -1,6 +1,8 @@
 """
 Petabyte - Production-grade Database tools and models for Polynode
-Copyright (C) 2022 Derailed.
+
+:copyright: 2021-2022 Derailed.
+:license: LGPL-3.0
 """
 from cassandra.cqlengine import columns, models
 
@@ -12,7 +14,6 @@ class User(models.Model):
     password: str = columns.Text()
     username: str = columns.Text(index=True)
     discriminator: str = columns.Text()
-    joined_at: str = columns.DateTime()
     avatar: str = columns.Text()
     banner: str = columns.Text()
     flags: int = columns.Integer()

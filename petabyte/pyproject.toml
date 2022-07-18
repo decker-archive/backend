@@ -4,10 +4,30 @@ version = "0.0.0"
 description = ""
 authors = ["VincentRPS <vincentbusiness55@gmail.com>"]
 
+[tool.isort]
+profile = 'black'
+
+[tool.black]
+target-version = ['py310']
+skip-string-normalization = true
+
+[tool.pyright]
+reportMissingTypeStubs = false
+reportPrivateUsage = false
+
 [tool.poetry.dependencies]
 python = "^3.10"
+cassandra-driver = "^3.25.0"
+msgspec = "^0.7.1"
+pydantic = "^1.9.1"
+bcrypt = "^3.2.2"
+itsdangerous = "^2.1.2"
 
 [tool.poetry.dev-dependencies]
+black = "^22.3.0"
+isort = "^5.10.1"
+pyright = "^1.1.255"
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -1,10 +1,12 @@
 """
 Petabyte - Production-grade Database tools and models for Polynode
-Copyright (C) 2022 Derailed.
+
+:copyright: 2021-2022 Derailed.
+:license: LGPL-3.0
 """
 from cassandra.cqlengine import columns, models
 
-from polynode.utils import transform_ids
+from petabyte.utils import transform_ids
 
 CHANNEL_TYPES = {
     0: 'GUILD_TEXT_CHANNEL',

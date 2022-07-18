@@ -228,9 +228,16 @@ optional = false
 python-versions = "^3.10"
 develop = false
 
+[package.dependencies]
+bcrypt = "^3.2.2"
+cassandra-driver = "^3.25.0"
+itsdangerous = "^2.1.2"
+msgspec = "^0.7.1"
+pydantic = "^1.9.1"
+
 [package.source]
 type = "directory"
-url = "petabyte"
+url = "../petabyte"
 
 [[package]]
 name = "platformdirs"
@@ -320,7 +327,7 @@ watchdog = ["watchdog"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "27f8ad34cc4fb25c35a326d3dbae0e1a847f5c2f5d4837288cbed508ed075cd5"
+content-hash = "5c188e6c34cc4767c34a47686b175dee80fc71df5bfae6a4377e42313b79c315"
 
 [metadata.files]
 bcrypt = [

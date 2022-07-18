@@ -1,6 +1,8 @@
 """
 Polynode - Production Grade node for Derailed
-Copyright (C) 2022 Derailed.
+
+:copyright: 2021-2022 Derailed.
+:license: LGPL-3.0
 """
 import orjson
 

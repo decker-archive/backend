@@ -1,13 +1,15 @@
 """
 Polynode - Production Grade node for Derailed
-Copyright (C) 2022 Derailed.
+
+:copyright: 2021-2022 Derailed.
+:license: LGPL-3.0
 """
 import threading
 from uuid import uuid4
 
 from flask import Response
 
-from polynode.app import app, limiter
+from polynode.app import app
 
 
 @app.route('/__developers')
