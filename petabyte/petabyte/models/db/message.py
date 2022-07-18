@@ -7,8 +7,8 @@ Petabyte - Production-grade Database tools and models for Polynode
 from typing import Any
 
 from cassandra.cqlengine import columns, models
-
-from petabyte.utils import transform_ids
+from ..hadron import User
+from .user import transform_user
 
 
 class Message(models.Model):
@@ -18,7 +18,7 @@ class Message(models.Model):
     bucket_id: int = columns.Integer(primary_key=True)
     author_id: int = columns.BigInt()
     content: str = columns.Text()
-    timestamp: str = columns.DateTime()
+    created_timestamp: str = columns.DateTime()
     edited_timestamp: str = columns.DateTime()
     mention_everyone: bool = columns.Boolean()
     pinned: bool = columns.Boolean()
@@ -48,7 +48,7 @@ class Embed(models.Model):
     type: str = columns.Text()
     description: str = columns.Text()
     url: str = columns.Text()
-    timestamp: str = columns.DateTime()
+    embed_timestamp: str = columns.DateTime()
     color: int = columns.Integer()
 
 
@@ -146,7 +146,10 @@ def transform_embed_fields(embed: Embed):
     for field in embed_fields:
         f = dict(field)
         f.pop('embed_id')
-        ret.append()
+        for k, v in f.items():
+            if 'id' in k:
+                dict[k] = str(v)
+        ret.append(f)
 
     return ret
 
@@ -166,16 +169,25 @@ def get_mentions(message: Message):
     for mention in user_mentions:
         mention = dict(mention)
         mention.pop('message_id')
+        for k, v in mention.items():
+            if 'id' in k:
+                dict[k] = str(v)
         ret['users'].append(mention)
 
     for mention in role_mentions:
         mention = dict(mention)
         mention.pop('message_id')
+        for k, v in mention.items():
+            if 'id' in k:
+                dict[k] = str(v)
         ret['roles'].append(mention)
 
     for mention in channel_mentions:
         mention = dict(mention)
         mention.pop('message_id')
+        for k, v in mention.items():
+            if 'id' in k:
+                dict[k] = str(v)
         ret['channels'].append(mention)
 
     return ret
@@ -183,7 +195,10 @@ def get_mentions(message: Message):
 
 def transform_message(message: Message):
     dict = message.__dict__
-    transform_ids(dict=dict)
+    for k, v in dict.items():
+        if 'id' in k:
+            dict[k] = str(v)
+    dict['author'] = transform_user(User.select(dict.pop('author_id')).poly.dict(exclude_none=True))
 
     embeds: list[Embed] = Embed.objects(Embed.message_id == message.id).all()
     ems = []
@@ -199,6 +214,9 @@ def transform_message(message: Message):
         # TODO: change emoji_id to a partial Emoji object.
         d = dict(reaction)
         d.pop('message_id')
+        for k, v in d.items():
+            if 'id' in k:
+                dict[k] = str(v)
         dict['reactions'].append(d)
 
     for embed in embeds:
@@ -208,6 +226,9 @@ def transform_message(message: Message):
             ).get()
             provider = dict(provider)
             provider.pop('embed_id')
+            for k, v in provider.items():
+                if 'id' in k:
+                    dict[k] = str(v)
         except:
             provider = None
 
@@ -215,6 +236,9 @@ def transform_message(message: Message):
             footer = EmbedFooter.objects(EmbedFooter.embed_id == embed.embed_id).get()
             footer = dict(footer)
             footer.pop('embed_id')
+            for k, v in footer.items():
+                if 'id' in k:
+                    dict[k] = str(v)
         except:
             footer = None
 
@@ -222,6 +246,9 @@ def transform_message(message: Message):
             author = EmbedAuthor.objects(EmbedAuthor.embed_id == embed.embed_id).get()
             author = dict(author)
             author.pop('embed_id')
+            for k, v in author.items():
+                if 'id' in k:
+                    dict[k] = str(v)
         except:
             author = None
 
@@ -229,6 +256,9 @@ def transform_message(message: Message):
             image = EmbedImage.objects(EmbedImage.embed_id == embed.embed_id).get()
             image = dict(image)
             image.pop('embed_id')
+            for k, v in image.items():
+                if 'id' in k:
+                    dict[k] = str(v)
         except:
             image = None
 
@@ -238,6 +268,9 @@ def transform_message(message: Message):
             ).get()
             thumbnail = dict(thumbnail)
             thumbnail.pop('embed_id')
+            for k, v in thumbnail.items():
+                if 'id' in k:
+                    dict[k] = str(v)
         except:
             thumbnail = None
 
@@ -245,6 +278,9 @@ def transform_message(message: Message):
             video = EmbedVideo.objects(EmbedVideo.embed_id == embed.embed_id).get()
             video = dict(video)
             video.pop('embed_id')
+            for k, v in video.items():
+                if 'id' in k:
+                    dict[k] = str(v)
         except:
             video = None
 

@@ -1,8 +1,9 @@
 [tool.poetry]
-name = "petabyte"
+name = "derailed-backend"
 version = "0.0.0"
 description = ""
 authors = ["VincentRPS <vincentbusiness55@gmail.com>"]
+license = "LGPL-3.0"
 
 [tool.isort]
 profile = 'black'
@@ -17,18 +18,10 @@ reportPrivateUsage = false
 
 [tool.poetry.dependencies]
 python = "~3.10"
-cassandra-driver = "^3.25.0"
-msgspec = "^0.7.1"
-pydantic = "^1.9.1"
-bcrypt = "^3.2.2"
-itsdangerous = "^2.1.2"
-python-dotenv = "^0.20.0"
+polynode = {path = "polynode", develop = false}
+petabyte = {path = "petabyte", develop = false}
 
 [tool.poetry.dev-dependencies]
-black = "^22.3.0"
-isort = "^5.10.1"
-pyright = "^1.1.255"
-
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

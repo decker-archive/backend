@@ -6,8 +6,6 @@ Petabyte - Production-grade Database tools and models for Polynode
 """
 from cassandra.cqlengine import columns, models
 
-from petabyte.utils import transform_ids
-
 CHANNEL_TYPES = {
     0: 'GUILD_TEXT_CHANNEL',
     1: 'DIRECT_MESSAGE',
@@ -56,7 +54,10 @@ class PermissionOverwrite(models.Model):
 def transform_channel(channel: Channel):
     dict = channel.__dict__
     dict.pop('guild_id')
-    transform_ids(dict=dict)
+
+    for k, v in dict.items():
+        if 'id' in k:
+            dict[k] = str(v)
 
     if dict['type'] in (0, 2, 4, 5, 6, 7, 8):
         perm_overwrites = PermissionOverwrite.objects(

@@ -16,10 +16,10 @@ app.json_decoder = ORJSONDecoder
 
 
 def get_key():
-    if not request.headers['Authorization']:
+    if hasattr(request, 'user_token'):
+        return request.user_token
+    else:
         return flask_limiter.util.get_remote_address()
-
-    return flask_limiter.util.get_remote_address()
 
 
 limiter = flask_limiter.Limiter(

@@ -1,5 +1,5 @@
 """
-Polynode - Production Grade node for Derailed
+Petabyte - Production-grade Database tools and models for Polynode
 
 :copyright: 2021-2022 Derailed.
 :license: LGPL-3.0
@@ -28,7 +28,7 @@ class SnowflakeFactory:
 
         epoch |= self._incrementation % 4096
 
-        if self._incrementation == 9000000:
+        if self._incrementation == 9000000000:
             self._incrementation = 0
 
         self._incrementation += 1
@@ -36,11 +36,11 @@ class SnowflakeFactory:
         return epoch
 
 
-snowstorm = SnowflakeFactory()
+forger = SnowflakeFactory()
 
 
 if __name__ == '__main__':
     while True:
         import sys
 
-        print(snowstorm.forge(), file=sys.stderr)
+        print(forger.forge(), file=sys.stderr)

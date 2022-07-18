@@ -4,7 +4,7 @@ Petabyte - Production-grade Database tools and models for Polynode
 :copyright: 2021-2022 Derailed.
 :license: LGPL-3.0
 """
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class PartialUser(BaseModel):
@@ -27,4 +27,3 @@ class CreateUser(BaseModel):
     email: str
     password: str
     username: str
-    discriminator: str = Field(regex=r'(?<!\d)\d{4,4}(?!\d)')

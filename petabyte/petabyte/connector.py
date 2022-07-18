@@ -13,9 +13,12 @@ from dotenv import load_dotenv
 
 from petabyte.models import db
 
-BUNDLE_LOC = os.getcwd() + r'\private\cass-bundle.zip'
+root = os.path.split(os.getcwd())[0]
 
-if not os.getenv('CLIENT_ID'):
+if __name__ != '__main__':
+    BUNDLE_LOC = os.getcwd() + r'\private\cass-bundle.zip'
+else:
+    BUNDLE_LOC = root + r'\private\cass-bundle.zip'
     load_dotenv()
 
 cloud = {'secure_connect_bundle': BUNDLE_LOC}
@@ -25,26 +28,23 @@ auth_provider = PlainTextAuthProvider(
 
 
 def connect():
-    try:
-        if os.getenv('SAFE', 'true') == 'false':
-            connection.setup(
-                None,
-                'petabyte',
-                cloud=cloud,
-                auth_provider=auth_provider,
-                connect_timeout=100,
-                retry_connect=True,
-            )
-        else:
-            connection.setup(
-                None,
-                'petabyte',
-                connect_timeout=100,
-                retry_connect=True,
-                compression=False,
-            )
-    except:
-        connect()
+    if os.getenv('SAFE', 'true') == 'true':
+        connection.setup(
+            None,
+            'petabyte',
+            cloud=cloud,
+            auth_provider=auth_provider,
+            connect_timeout=100,
+            retry_connect=True,
+        )
+    else:
+        connection.setup(
+            None,
+            'petabyte',
+            connect_timeout=100,
+            retry_connect=True,
+            compression=False,
+        )
 
 
 if __name__ == '__main__':
