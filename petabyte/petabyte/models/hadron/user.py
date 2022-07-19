@@ -5,17 +5,18 @@ Petabyte - Production-grade Database tools and models for Polynode
 :license: LGPL-3.0
 """
 import base64
-import itsdangerous
 from random import randint
 
 import bcrypt
+import itsdangerous
 
 from ...errors import PetabyteException
-from ..db.user import User as PolyDB, UserSettings as PolySettings
-from ..db.user import transform_user
+from ...forge import forger
+from ...utils import to_dict
+from ..db.user import User as PolyDB
+from ..db.user import UserSettings as PolySettings
 from ..poly import CreateUser
 from ..poly import User as Poly
-from ...forge import forger
 
 
 class User:
@@ -27,7 +28,7 @@ class User:
     @classmethod
     def select(cls, id: int | list[int]):
         polydb: PolyDB = PolyDB.objects(PolyDB.id == id).get()
-        self = cls(poly=Poly(**transform_user(dict(polydb))))
+        self = cls(poly=Poly(**to_dict(polydb, True)))
         self.email = polydb.email
         self.password = polydb.password
         return self
@@ -36,7 +37,9 @@ class User:
     def insert(cls, poly: CreateUser):
         insert = poly.dict()
         insert['discriminator'] = cls.generate_discriminator(username=poly.username)
-        password = bcrypt.hashpw(insert['password'].encode(), bcrypt.gensalt(14)).decode()
+        password = bcrypt.hashpw(
+            insert['password'].encode(), bcrypt.gensalt(14)
+        ).decode()
         insert['password'] = password
 
         # NOTE: Defaults
@@ -49,12 +52,9 @@ class User:
 
         poly: PolyDB = PolyDB.create(**insert)
         PolySettings.create(
-            user_id=insert['id'],
-            locale='en-US',
-            developer_mode=False,
-            theme='dark'
+            user_id=insert['id'], locale='en-US', developer_mode=False, theme='dark'
         )
-        self = cls(poly=Poly(**transform_user(user=insert, keep_email=True)))
+        self = cls(poly=Poly(**to_dict(poly, True)))
         self.password = password
         self.email = insert['email']
 

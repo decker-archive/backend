@@ -13,6 +13,7 @@ class SnowflakeFactory:
     def __init__(self) -> None:
         self._epoch: int = 1641042000000
         self._incrementation = 0
+        self._bucket_size = 1000 * 60 * 60 * 24 * 4
 
     def forge(self) -> int:
         current_ms = int(time.time() * 1000)
@@ -35,6 +36,13 @@ class SnowflakeFactory:
 
         return epoch
 
+    def make_bucket(self, epoch: int) -> int:
+        timestamp = epoch >> 22
+        return timestamp // self._bucket_size
+
+    def make_buckets(self, start_id, end_id=None):
+        return range(self.make_bucket(start_id), self.make_bucket(end_id) + 1)
+
 
 forger = SnowflakeFactory()
 
@@ -43,4 +51,7 @@ if __name__ == '__main__':
     while True:
         import sys
 
-        print(forger.forge(), file=sys.stderr)
+        enforgement = forger.forge()
+        enforged_bucket = forger.make_bucket(enforgement)
+
+        print(enforgement, enforged_bucket, file=sys.stderr)

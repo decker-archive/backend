@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 
 class PartialUser(BaseModel):
-    id: int
+    id: str
     username: str
     discriminator: str
     flags: int

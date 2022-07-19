@@ -49,18 +49,3 @@ class UserSettings(models.Model):
     locale: str = columns.Text()
     developer_mode: bool = columns.Boolean()
     theme: str = columns.Text(default='dark')
-
-
-def transform_user(user: User | dict, keep_email: bool = False):
-    data = user.__dict__ if not isinstance(user, dict) else user
-    for k, v in data.items():
-        if 'id' in k:
-            data[k] = str(v)
-
-    if data.get('password'):
-        data.pop('password')
-
-    if not keep_email:
-        data.pop('email')
-
-    return data

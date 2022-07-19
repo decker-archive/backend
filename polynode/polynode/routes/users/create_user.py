@@ -5,6 +5,7 @@ Polynode - Production Grade node for Derailed
 :license: LGPL-3.0
 """
 
+from flask import request
 from flask_pydantic import validate
 
 from petabyte.models.hadron import CreateUser, User
@@ -16,5 +17,6 @@ from polynode.app import limiter
 @limiter.limit('3/hour')
 @validate_version
 def req(body: CreateUser) -> User:
+
     user: User = User.insert(body)
     return {'token': user.generate_token()}

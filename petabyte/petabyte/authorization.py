@@ -63,6 +63,6 @@ def requires_authorization(func: Callable):
         request.user = user
         request.user_token = token
 
-        return func(user, *args, **kwargs)
+        return func(*args, **kwargs)
 
     return inner

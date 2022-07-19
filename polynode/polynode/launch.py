@@ -36,8 +36,13 @@ def method_invalid(_):
 
 
 @app.errorhandler(429)
-async def rate_limit(_):
+def rate_limit(_):
     return {'code': 3, 'message': '429: Too Many Requests', 'type': 'default'}, 429
+
+
+@app.errorhandler(500)
+def internal(_):
+    return {'code': 12, 'message': '500: Internal Server Error', 'type': 'internal'}, 500
 
 
 @app.errorhandler(PetabyteException)
