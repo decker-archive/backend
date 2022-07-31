@@ -216,10 +216,11 @@ def get_mentions(message: Message):
         ChannelMention.message_id == message.id
     ).all()
 
-    ret: dict[str, list[dict[str, Any]]] = {}
-    ret['users'] = []
-    ret['roles'] = []
-    ret['channels'] = []
+    ret: dict[str, list[dict[str, Any]]] = {
+        'users': [],
+        'roles': [],
+        'channels': [],
+    }
 
     for mention in user_mentions:
         mention = to_dict(mention)
