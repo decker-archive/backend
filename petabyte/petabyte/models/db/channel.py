@@ -63,10 +63,7 @@ def transform_channel(channel: Channel):
         perm_overwrites = PermissionOverwrite.objects(
             PermissionOverwrite.channel_id == channel.id
         ).all()
-        dict['overwrites']: list[PermissionOverwrite] = []
-
-        for overwrite in perm_overwrites:
-            dict['overwrites'].append(overwrite)
+        dict['overwrites']: list[PermissionOverwrite] = list(perm_overwrites)
 
     if dict['type'] in (0, 1, 2, 3, 4, 5, 6, 7, 8):
         for value in ('member_count', 'application_id', 'icon', 'owner_id'):
